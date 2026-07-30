@@ -327,8 +327,8 @@ export default function TeacherDashboard() {
       });
       setNewMaterial({ title: "", url: "" });
       toast.success("Material adicionado!");
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      toast.error((error as Error).message);
     }
   };
 
@@ -360,8 +360,8 @@ export default function TeacherDashboard() {
       toast.success("Avaliação enviada para o aluno!");
       setShowAssessmentBuilder(false);
       setAssessmentDraft({ title: '', type: 'Lição', isGraded: false, dueDate: '', questions: [] });
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      toast.error((error as Error).message);
     }
   };
 
