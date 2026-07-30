@@ -325,7 +325,7 @@ export default function TeacherDashboard() {
         studentId: selectedStudent.uid,
         createdAt: new Date().toISOString()
       });
-      setNewMaterial({ title: "", url: "" });
+      setNewMaterial({ title: "", url: "", studentId: "" });
       toast.success("Material adicionado!");
     } catch (error) {
       toast.error((error as Error).message);
