@@ -277,6 +277,18 @@ export default function StudentDashboard() {
 
   if (!user) return <div style={{height:'100vh', display:'flex', alignItems:'center', justifyContent:'center'}}>Carregando...</div>;
 
+  if (userProfile?.status === "pending") {
+    return (
+      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', textAlign: 'center', padding: '2rem' }}>
+        <Image src="/logo.png" alt="Logo" width={100} height={100} style={{ marginBottom: '1rem' }} />
+        <h1 style={{ color: 'var(--primary-blue)', marginBottom: '1rem' }}>Aguardando Liberação</h1>
+        <p style={{ color: '#666', maxWidth: '500px', fontSize: '1.2rem', lineHeight: '1.6', marginBottom: '2rem' }}>
+          Sua conta foi criada com sucesso! No entanto, o Teacher Gus precisa aprovar o seu acesso manualmente. Por favor, aguarde a liberação.
+        </p>
+        <button onClick={() => {signOut(auth); router.push("/");}} className="btn-secondary">Voltar ao Início</button>
+      </div>
+    );
+  }
   const isHotmart = userProfile?.modality === 'Hotmart';
   const isParticular = userProfile?.modality === 'Particular' || !userProfile?.modality; // Fallback
   const pkg = userProfile?.package;

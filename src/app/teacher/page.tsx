@@ -500,31 +500,69 @@ export default function TeacherDashboard() {
                     </motion.form>
                   )}
 
-                  <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(300px, 1fr))', gap:'1.5rem'}}>
-                    {students.map(s => (
-                      <motion.div whileHover={{ y: -5 }} key={s.id} onClick={() => setSelectedStudent(s)} style={{ background: '#f8fafc', border:'1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', position: 'relative'}}>
-                        {s.hasUnreadForTeacher && (
-                          <div style={{position: 'absolute', top: '-5px', right: '-5px', width: '20px', height: '20px', background: 'red', borderRadius: '50%', border: '2px solid white'}}></div>
-                        )}
-                        <div style={{display:'flex', alignItems:'center', gap:'15px'}}>
-                          {s.photoURL ? (
-                            <img src={s.photoURL} alt="Foto" style={{width:'50px', height:'50px', borderRadius:'50%', objectFit:'cover'}} />
-                          ) : (
-                            <div style={{width:'50px', height:'50px', borderRadius:'50%', background:'var(--primary-blue)', color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.2rem', fontWeight:'bold'}}>{s.name.charAt(0)}</div>
-                          )}
-                          <div>
-                            <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                               <h4 style={{margin:0, color:'var(--primary-blue)', fontSize:'1.1rem'}}>{s.name}</h4>
-                               {s.modality === 'Hotmart' && s.package === 'Start your English' && <span title="Start your English" style={{ fontSize: '1.2rem' }}>🥉</span>}
-                               {s.modality === 'Hotmart' && s.package === 'English Evolution' && <span title="English Evolution" style={{ fontSize: '1.2rem' }}>🥈</span>}
-                               {s.modality === 'Hotmart' && s.package === 'Becoming Fluent' && <span title="Becoming Fluent" style={{ fontSize: '1.2rem' }}>🥇</span>}
+                  {(() => {
+                    const pendingStudents = students.filter(s => s.status === 'pending');
+                    const approvedStudents = students.filter(s => s.status !== 'pending');
+                    return (
+                      <>
+                        {pendingStudents.length > 0 && (
+                          <div style={{ marginBottom: '2rem' }}>
+                            <h3 style={{ color: 'var(--accent-gold)', marginBottom: '1rem' }}>Alunos Pendentes (Aguardando Aprovação)</h3>
+                            <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(300px, 1fr))', gap:'1.5rem'}}>
+                              {pendingStudents.map(s => (
+                                <div key={s.id} style={{ background: '#fffbeb', border:'1px solid #fde68a', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 2px 4px rgba(0,0,0,0.02)'}}>
+                                  <div style={{display:'flex', alignItems:'center', gap:'15px', marginBottom: '1rem'}}>
+                                    <div style={{width:'50px', height:'50px', borderRadius:'50%', background:'var(--accent-gold)', color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.2rem', fontWeight:'bold'}}>{s.name.charAt(0)}</div>
+                                    <div>
+                                      <h4 style={{margin:0, color:'var(--primary-blue)', fontSize:'1.1rem'}}>{s.name}</h4>
+                                      <p style={{margin:0, color:'#64748b', fontSize:'0.9rem'}}>{s.email}</p>
+                                    </div>
+                                  </div>
+                                  <button 
+                                    onClick={async () => {
+                                      await updateDoc(doc(db, "users", s.id), { status: 'approved' });
+                                      toast.success("Aluno aprovado!");
+                                    }} 
+                                    className="btn-primary" 
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}
+                                  >
+                                    Aprovar Acesso
+                                  </button>
+                                </div>
+                              ))}
                             </div>
-                            <p style={{margin:0, color:'#64748b', fontSize:'0.9rem'}}>{s.email}</p>
                           </div>
+                        )}
+                        
+                        <h3 style={{ color: 'var(--primary-blue)', marginBottom: '1rem' }}>Alunos Ativos</h3>
+                        <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(300px, 1fr))', gap:'1.5rem'}}>
+                          {approvedStudents.map(s => (
+                            <motion.div whileHover={{ y: -5 }} key={s.id} onClick={() => setSelectedStudent(s)} style={{ background: '#f8fafc', border:'1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', position: 'relative'}}>
+                              {s.hasUnreadForTeacher && (
+                                <div style={{position: 'absolute', top: '-5px', right: '-5px', width: '20px', height: '20px', background: 'red', borderRadius: '50%', border: '2px solid white'}}></div>
+                              )}
+                              <div style={{display:'flex', alignItems:'center', gap:'15px'}}>
+                                {s.photoURL ? (
+                                  <img src={s.photoURL} alt="Foto" style={{width:'50px', height:'50px', borderRadius:'50%', objectFit:'cover'}} />
+                                ) : (
+                                  <div style={{width:'50px', height:'50px', borderRadius:'50%', background:'var(--primary-blue)', color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.2rem', fontWeight:'bold'}}>{s.name.charAt(0)}</div>
+                                )}
+                                <div>
+                                  <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                    <h4 style={{margin:0, color:'var(--primary-blue)', fontSize:'1.1rem'}}>{s.name}</h4>
+                                    {s.modality === 'Hotmart' && s.package === 'Start your English' && <span title="Start your English" style={{ fontSize: '1.2rem' }}>🥉</span>}
+                                    {s.modality === 'Hotmart' && s.package === 'English Evolution' && <span title="English Evolution" style={{ fontSize: '1.2rem' }}>🥈</span>}
+                                    {s.modality === 'Hotmart' && s.package === 'Becoming Fluent' && <span title="Becoming Fluent" style={{ fontSize: '1.2rem' }}>🥇</span>}
+                                  </div>
+                                  <p style={{margin:0, color:'#64748b', fontSize:'0.9rem'}}>{s.email}</p>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
                         </div>
-                      </motion.div>
-                    ))}
-                  </div>
+                      </>
+                    );
+                  })()}
                 </div>
               )}
 

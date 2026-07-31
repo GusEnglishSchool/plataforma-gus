@@ -251,8 +251,7 @@ export default function Home() {
           <div className="lp-videos-grid">
             {[
               { id: 1, name: "Ricardo", role: "Membro há 3 meses", video: "depoimento1.mp4" },
-              { id: 2, name: "Em breve", role: "Aluno(a)", video: null },
-              { id: 3, name: "Em breve", role: "Aluno(a)", video: null }
+              { id: 2, name: "Novo Aluno", role: "Aluno(a)", video: "depoimento2.mp4" }
             ].map((testimonial, i) => (
               <motion.div key={testimonial.id} className="lp-video-card" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
                 {testimonial.video ? (
