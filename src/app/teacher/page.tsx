@@ -148,10 +148,15 @@ export default function TeacherDashboard() {
     const unsubGlobalChat = onSnapshot(qGlobalChat, (snap) => {
       const data: any[] = [];
       let hasNew = false;
-      snap.forEach(d => data.push({ id: d.id, ...d.data() }));
+      snap.forEach(d => {
+        if (d.data().type === "global" || !d.data().type) {
+          data.push({ id: d.id, ...d.data() });
+        }
+      });
       snap.docChanges().forEach(change => {
         if (!initialLoadGlobal && change.type === "added") {
-           if (change.doc.data().senderId !== currentUserUid) hasNew = true;
+           const msgData = change.doc.data();
+           if ((msgData.type === "global" || !msgData.type) && msgData.senderId !== currentUserUid) hasNew = true;
         }
       });
       setGlobalMessages(data);

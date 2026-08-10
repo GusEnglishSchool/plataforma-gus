@@ -115,7 +115,11 @@ export default function StudentDashboard() {
     const qGlobalChat = query(collection(db, "messages"), orderBy("createdAt", "asc"));
     const unsubGlobalChat = onSnapshot(qGlobalChat, (snap) => {
       const data: any[] = [];
-      snap.forEach(d => data.push({ id: d.id, ...d.data() }));
+      snap.forEach(d => {
+        if (d.data().type === "global" || !d.data().type) {
+          data.push({ id: d.id, ...d.data() });
+        }
+      });
       setGlobalMessages(data);
       setTimeout(scrollToBottom, 100);
     });
