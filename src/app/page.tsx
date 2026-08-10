@@ -249,10 +249,10 @@ export default function Home() {
           <p style={{ color: '#6b7280', fontSize: '1.1rem', marginTop: '1rem' }}>Resultados reais de quem já transformou o inglês com a minha metodologia.</p>
           
           <div className="lp-videos-grid">
-            {[
+            {( [
               { id: 1, name: "Ricardo", role: "Membro há 3 meses", video: "depoimento1.mp4" },
               { id: 2, name: "Enzo Rosolia", role: "Membro há 8 meses", video: "depoimento2.mp4" }
-            ].map((testimonial, i) => (
+            ] as Array<{id: number, name: string, role: string, video?: string, youtubeId?: string}> ).map((testimonial, i) => (
               <motion.div key={testimonial.id} className="lp-video-card" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
                 {(testimonial.video || testimonial.youtubeId) ? (
                   <TestimonialVideo src={testimonial.video ? `/${testimonial.video}` : undefined} youtubeId={testimonial.youtubeId} name={testimonial.name} role={testimonial.role} />
