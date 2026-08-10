@@ -18,6 +18,10 @@ export const metadata: Metadata = {
   description: "O método definitivo para você destravar seu inglês.",
   manifest: "/manifest.json",
   themeColor: "#0033A0",
+  icons: {
+    icon: '/logofavicon.png',
+    apple: '/logoapp.png',
+  },
 };
 
 export default function RootLayout({
