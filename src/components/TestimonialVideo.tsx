@@ -1,13 +1,59 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
-export default function TestimonialVideo({ src, name, role }: { src: string, name: string, role: string }) {
+export default function TestimonialVideo({ src, name, role, youtubeId }: { src?: string, name: string, role: string, youtubeId?: string }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const playerRef = useRef<any>(null);
+  const [ytReady, setYtReady] = useState(false);
+
+  useEffect(() => {
+    if (youtubeId && !(window as any).YT) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+      
+      (window as any).onYouTubeIframeAPIReady = () => {
+        setYtReady(true);
+      };
+    } else if (youtubeId && (window as any).YT) {
+      setYtReady(true);
+    }
+  }, [youtubeId]);
+
+  useEffect(() => {
+    if (ytReady && youtubeId && !playerRef.current) {
+      playerRef.current = new (window as any).YT.Player(`youtube-player-${youtubeId}`, {
+        videoId: youtubeId,
+        playerVars: {
+          controls: 0,
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1,
+          disablekb: 1,
+          fs: 0,
+          iv_load_policy: 3
+        },
+        events: {
+          onStateChange: (event: any) => {
+            if (event.data === (window as any).YT.PlayerState.PLAYING) setIsPlaying(true);
+            else if (event.data === (window as any).YT.PlayerState.PAUSED || event.data === (window as any).YT.PlayerState.ENDED) setIsPlaying(false);
+          }
+        }
+      });
+    }
+  }, [ytReady, youtubeId]);
 
   const handlePlay = () => {
-    if (videoRef.current) {
+    if (youtubeId && playerRef.current) {
+      if (isPlaying) {
+        playerRef.current.pauseVideo();
+      } else {
+        playerRef.current.playVideo();
+      }
+    } else if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
         setIsPlaying(false);
@@ -23,19 +69,32 @@ export default function TestimonialVideo({ src, name, role }: { src: string, nam
       style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', cursor: 'pointer', background: '#000' }} 
       onClick={handlePlay}
     >
-      <video 
-        ref={videoRef}
-        src={src} 
-        loop
-        playsInline
-        style={{ 
+      {youtubeId ? (
+        <div style={{ 
           width: '100%', 
           height: '100%', 
-          objectFit: 'cover', 
+          pointerEvents: 'none', 
           filter: isPlaying ? 'none' : 'blur(3px) brightness(0.6)',
-          transition: 'filter 0.3s ease'
-        }} 
-      />
+          transition: 'filter 0.3s ease',
+          transform: 'scale(1.5)' // scale up to hide black bars on shorts
+        }}>
+          <div id={`youtube-player-${youtubeId}`} style={{ width: '100%', height: '100%' }} />
+        </div>
+      ) : (
+        <video 
+          ref={videoRef}
+          src={src} 
+          loop
+          playsInline
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'cover', 
+            filter: isPlaying ? 'none' : 'blur(3px) brightness(0.6)',
+            transition: 'filter 0.3s ease'
+          }} 
+        />
+      )}
       
       {!isPlaying && (
         <div style={{ 
