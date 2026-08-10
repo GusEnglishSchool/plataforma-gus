@@ -346,7 +346,11 @@ export default function TeacherDashboard() {
     }
     
     for (const q of assessmentDraft.questions) {
-      if (!q.prompt.trim()) return toast.error("Preencha todas as perguntas.");
+      if (!q.prompt?.trim() && !q.instruction?.trim()) return toast.error("Preencha o texto da pergunta ou a instrução para todas as questões.");
+      // Fallback: if prompt is empty but instruction exists, use instruction as prompt
+      if (!q.prompt?.trim() && q.instruction?.trim()) {
+        q.prompt = q.instruction;
+      }
       if ((q.type === 'multiple_choice' || q.type === 'checkboxes') && (!q.options || q.options.length < 2)) {
         return toast.error("Questões de múltipla escolha/caixas precisam de pelo menos 2 opções.");
       }
@@ -714,17 +718,15 @@ export default function TeacherDashboard() {
                                         }} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '1.1rem', fontWeight: 'bold' }} />
                                       </div>
                                       
-                                      {!['multiple_choice', 'checkboxes', 'match_columns'].includes(q.type) && (
-                                        <textarea required rows={4} placeholder={
-                                          q.type === 'fill_in_the_blanks' ? "Ex:\na. I ___ a student.\nb. She ___ happy." :
-                                          q.type === 'inline_dropdown' ? "Ex:\na. I [am/is/are] happy." :
-                                          "Pergunta / Texto Principal..."
-                                        } value={q.prompt} onChange={e => {
-                                          const newQs = [...assessmentDraft.questions];
-                                          newQs[qIndex].prompt = e.target.value;
-                                          setAssessmentDraft({...assessmentDraft, questions: newQs});
-                                        }} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '1.1rem', fontFamily: 'inherit' }} />
-                                      )}
+                                      <textarea rows={4} placeholder={
+                                        q.type === 'fill_in_the_blanks' ? "Ex:\na. I ___ a student.\nb. She ___ happy." :
+                                        q.type === 'inline_dropdown' ? "Ex:\na. I [am/is/are] happy." :
+                                        "Pergunta / Texto Principal..."
+                                      } value={q.prompt || ''} onChange={e => {
+                                        const newQs = [...assessmentDraft.questions];
+                                        newQs[qIndex].prompt = e.target.value;
+                                        setAssessmentDraft({...assessmentDraft, questions: newQs});
+                                      }} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '1.1rem', fontFamily: 'inherit' }} />
                                       
                                       {q.type === 'fill_in_the_blanks' && <small style={{ color: '#666', marginTop: '-5px', display: 'block' }}>Dica: digite 3 underlines (___) onde quiser que a lacuna apareça. Aceita quebras de linha!</small>}
                                       {q.type === 'inline_dropdown' && <small style={{ color: '#666', marginTop: '-5px', display: 'block' }}>Dica: coloque as opções entre colchetes separadas por barra. Ex: [am/is/are]</small>}
