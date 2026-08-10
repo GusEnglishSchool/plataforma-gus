@@ -935,8 +935,9 @@ export default function TeacherDashboard() {
                                   <div style={{ background: isMe ? 'var(--primary-blue)' : 'white', color: isMe ? 'white' : 'var(--text-dark)', padding: '12px 18px', borderRadius: isMe ? '18px 18px 0 18px' : '18px 18px 18px 0', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', fontSize:'1rem' }}>
                                     {msg.text}
                                   </div>
-                                  <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '4px', textAlign: isMe ? 'right' : 'left', padding:'0 5px' }}>
-                                    {moment(msg.createdAt).format('DD/MM HH:mm')}
+                                  <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '4px', display: 'flex', alignItems: 'center', justifyContent: isMe ? 'flex-end' : 'space-between', gap: '10px', padding:'0 5px' }}>
+                                    <span>{moment(msg.createdAt).format('DD/MM HH:mm')}</span>
+                                    <button onClick={() => handleDelete('messages', msg.id, 'esta mensagem')} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: '0.9rem' }} title="Apagar Mensagem">🗑️</button>
                                   </div>
                                  </div>
                               </div>
@@ -1019,8 +1020,9 @@ export default function TeacherDashboard() {
                            <div style={{ background: isMe ? 'var(--primary-blue)' : (isTeacher ? 'var(--accent-gold)' : 'white'), color: isMe ? 'white' : 'var(--text-dark)', padding: '12px 18px', borderRadius: isMe ? '18px 18px 0 18px' : '18px 18px 18px 0', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', fontSize:'1rem' }}>
                              {msg.text}
                            </div>
-                           <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '4px', textAlign: isMe ? 'right' : 'left', padding:'0 5px' }}>
-                             {moment(msg.createdAt).format('DD/MM HH:mm')}
+                           <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '4px', display: 'flex', alignItems: 'center', justifyContent: isMe ? 'flex-end' : 'space-between', gap: '10px', padding:'0 5px' }}>
+                             <span>{moment(msg.createdAt).format('DD/MM HH:mm')}</span>
+                             <button onClick={() => handleDelete('messages', msg.id, 'esta mensagem')} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: '0.9rem' }} title="Apagar Mensagem">🗑️</button>
                            </div>
                          </div>
                        </div>
