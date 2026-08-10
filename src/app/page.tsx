@@ -43,6 +43,8 @@ function FAQItem({ faq, index }: { faq: {q: string, a: string}, index: number })
 }
 
 export default function Home() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
     <>
       <header className="header" style={{ position: 'fixed', width: '100%', background: 'rgba(0, 34, 68, 0.95)', backdropFilter: 'blur(10px)' }}>
@@ -51,10 +53,15 @@ export default function Home() {
             <Image src="/logo.png" alt="Gus English School Logo" width={40} height={40} />
             <span>Gus English School</span>
           </div>
-          <nav className="nav-links">
-            <a href="#sobre" className="nav-link">Sobre o Teacher</a>
-            <a href="#plataforma" className="nav-link">A Plataforma</a>
-            <Link href="/login" className="btn-primary" style={{ padding: '8px 24px', fontSize: '1rem' }}>
+          
+          <button className="mobile-menu-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '2rem', cursor: 'pointer', display: 'flex', alignItems: 'center' }} aria-label="Menu">
+            ☰
+          </button>
+
+          <nav className={`nav-links ${isMobileMenuOpen ? 'open' : ''}`}>
+            <a href="#sobre" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Sobre o Teacher</a>
+            <a href="#plataforma" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>A Plataforma</a>
+            <Link href="/login" className="btn-primary" style={{ padding: '8px 24px', fontSize: '1rem' }} onClick={() => setIsMobileMenuOpen(false)}>
               Portal do Aluno
             </Link>
           </nav>
@@ -295,14 +302,14 @@ export default function Home() {
       </main>
 
       {/* FLOATING WHATSAPP BUTTON */}
-      <a href="https://wa.me/5511999999999" target="_blank" rel="noreferrer" style={{ position: 'fixed', bottom: '30px', right: '30px', background: '#25D366', color: 'white', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.3)', zIndex: 999, transition: 'transform 0.3s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'} title="Fale comigo no WhatsApp">
+      <a href="https://wa.me/5511913280746" target="_blank" rel="noreferrer" style={{ position: 'fixed', bottom: '30px', right: '30px', background: '#25D366', color: 'white', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.3)', zIndex: 999, transition: 'transform 0.3s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'} title="Fale comigo no WhatsApp">
          <svg width="35" height="35" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 0C5.385 0 0 5.385 0 12.031c0 2.128.552 4.148 1.6 5.945L.234 23.355l5.526-1.448a12.025 12.025 0 006.271 1.748h.001c6.646 0 12.03-5.385 12.03-12.031S18.677 0 12.031 0zM12.03 21.644h-.001a10.021 10.021 0 01-5.111-1.393l-.366-.217-3.799.996.998-3.71-.238-.378a10.02 10.02 0 01-1.534-5.334c0-5.534 4.503-10.038 10.037-10.038 5.533 0 10.036 4.504 10.036 10.038s-4.503 10.036-10.036 10.036zM17.534 14.15c-.302-.15-1.785-.88-2.062-.98-.277-.1-.479-.15-.68.15-.202.3-.778.98-.955 1.18-.176.2-.353.225-.655.075-.302-.15-1.275-.47-2.428-1.5-.898-.802-1.503-1.792-1.68-2.092-.176-.3-.019-.462.132-.612.135-.135.302-.35.453-.525.15-.175.2-.3.301-.5.1-.2.05-.375-.025-.525-.075-.15-.68-1.642-.931-2.25-.245-.592-.494-.512-.68-.521-.175-.008-.377-.008-.578-.008-.202 0-.528.075-.805.375-.277.3-1.057 1.034-1.057 2.52s1.083 2.918 1.234 3.118c.15.2 2.122 3.242 5.143 4.545.719.31 1.28.495 1.718.634.721.23 1.378.197 1.896.119.58-.088 1.785-.73 2.036-1.436.252-.706.252-1.31.176-1.436-.075-.126-.277-.201-.579-.351z"/></svg>
       </a>
 
       <footer className="lp-footer">
         <h2 style={{ color: 'white', marginBottom: '1rem' }}>Pronto para o próximo passo?</h2>
         <p style={{ marginBottom: '2rem', color: 'rgba(255,255,255,0.8)' }}>Entre em contato hoje e agende sua primeira aula.</p>
-        <a href="https://wa.me/5511999999999" target="_blank" rel="noreferrer" className="btn-primary" style={{ padding: '12px 32px' }}>
+        <a href="https://wa.me/5511913280746" target="_blank" rel="noreferrer" className="btn-primary" style={{ padding: '12px 32px' }}>
           Falar com Teacher Gus
         </a>
         <div style={{ marginTop: '4rem', color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>

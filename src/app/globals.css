@@ -143,6 +143,34 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
 }
 
+.mobile-menu-btn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    background: rgba(0, 34, 68, 0.98);
+    padding: 1.5rem;
+    gap: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+  .nav-links.open {
+    display: flex;
+  }
+  .mobile-menu-btn {
+    display: block;
+  }
+  .header-content {
+    flex-wrap: wrap;
+  }
+}
+
 .nav-link {
   font-weight: 500;
   transition: color 0.2s;
