@@ -187,16 +187,13 @@ export default function TeacherDashboard() {
       setMaterials(data);
     });
 
-    const qMessages = query(collection(db, "messages"), where("participants", "array-contains", currentUserUid));
+    const chatId = [currentUserUid, selectedStudent.uid].sort().join("_");
+    const qMessages = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "asc"));
     const unsubMessages = onSnapshot(qMessages, (snap) => {
       const data: any[] = [];
       snap.forEach(d => {
-        const msg = d.data();
-        if (msg.participants.includes(selectedStudent.uid) && msg.type !== "global") {
-          data.push({ id: d.id, ...msg });
-        }
+        data.push({ id: d.id, ...d.data() });
       });
-      data.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
       setPrivateMessages(data);
       setTimeout(scrollToBottom, 100);
     });
@@ -283,12 +280,11 @@ export default function TeacherDashboard() {
   const handleSendPrivateMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPrivateMessage.trim() || !selectedStudent || !currentUserUid) return;
-    await addDoc(collection(db, "messages"), {
+    const chatId = [currentUserUid, selectedStudent.uid].sort().join("_");
+    await addDoc(collection(db, "chats", chatId, "messages"), {
       text: newPrivateMessage,
       senderName: "Teacher Gus",
       senderId: currentUserUid,
-      participants: [currentUserUid, selectedStudent.uid].sort(),
-      type: "private",
       createdAt: new Date().toISOString()
     });
     
