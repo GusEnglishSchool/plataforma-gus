@@ -36,6 +36,7 @@ const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }: any) => {
 export default function TeacherDashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("alunos");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   const [students, setStudents] = useState<any[]>([]);
   const [materials, setMaterials] = useState<any[]>([]);
@@ -442,21 +443,23 @@ export default function TeacherDashboard() {
           </motion.div>
         </div>
       )}
-      <aside className="sidebar">
+      <div className={`sidebar-overlay ${isSidebarOpen ? 'open' : ''}`} onClick={() => setIsSidebarOpen(false)}></div>
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <Image src="/logo.png" alt="Logo" width={40} height={40} />
           <h2>Teacher Gus</h2>
         </div>
         <nav className="sidebar-nav">
-          <button className={`nav-item ${activeTab === "alunos" ? "active" : ""}`} onClick={() => {setActiveTab("alunos"); setSelectedStudent(null);}}>Meus Alunos</button>
-          <button className={`nav-item ${activeTab === "calendario" ? "active" : ""}`} onClick={() => setActiveTab("calendario")}>Calendário</button>
+          <button className={`nav-item ${activeTab === "alunos" ? "active" : ""}`} onClick={() => {setActiveTab("alunos"); setSelectedStudent(null); setIsSidebarOpen(false);}}>Meus Alunos</button>
+          <button className={`nav-item ${activeTab === "calendario" ? "active" : ""}`} onClick={() => {setActiveTab("calendario"); setIsSidebarOpen(false);}}>Calendário</button>
           <button className={`nav-item ${activeTab === "sala-global" ? "active" : ""}`} onClick={async () => {
             setActiveTab("sala-global");
+            setIsSidebarOpen(false);
             await setDoc(doc(db, "settings", "global_room"), { isOpen: true }, { merge: true });
           }} style={{ color: 'var(--accent-gold)' }}>
             🎥 Sala Global (Live)
           </button>
-          <button className={`nav-item ${activeTab === "chat-global" ? "active" : ""}`} onClick={() => setActiveTab("chat-global")} style={{position: 'relative'}}>
+          <button className={`nav-item ${activeTab === "chat-global" ? "active" : ""}`} onClick={() => {setActiveTab("chat-global"); setIsSidebarOpen(false);}} style={{position: 'relative'}}>
             Chat da Turma
             {hasUnreadGlobal && activeTab !== "chat-global" && <span style={{position:'absolute', right:'10px', top:'50%', transform:'translateY(-50%)', width:'10px', height:'10px', borderRadius:'50%', background:'red'}}></span>}
           </button>
@@ -468,7 +471,10 @@ export default function TeacherDashboard() {
 
       <main className="dashboard-content">
         <header className="content-header">
-          <h1>{activeTab === "alunos" ? "Painel de Alunos" : activeTab === "calendario" ? "Calendário Geral" : activeTab === "sala-global" ? "Sala de Aula Global" : "Chat de Interação da Turma"}</h1>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <button className="mobile-sidebar-btn" onClick={() => setIsSidebarOpen(true)}>☰</button>
+            <h1>{activeTab === "alunos" ? "Painel de Alunos" : activeTab === "calendario" ? "Calendário Geral" : activeTab === "sala-global" ? "Sala de Aula Global" : "Chat de Interação da Turma"}</h1>
+          </div>
           <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <span style={{fontWeight: 'bold', color: 'var(--primary-blue)'}}>Teacher Gustavo</span>
             <label style={{ cursor: 'pointer', position: 'relative' }} title="Clique para alterar a foto">

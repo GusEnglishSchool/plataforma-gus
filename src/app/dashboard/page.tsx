@@ -20,6 +20,7 @@ const localizer = momentLocalizer(moment);
 export default function StudentDashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("inicio");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [studentDocId, setStudentDocId] = useState<string>("");
@@ -306,30 +307,34 @@ export default function StudentDashboard() {
 
   return (
     <div className="dashboard-layout">
-      <aside className="sidebar">
+      <div className={`sidebar-overlay ${isSidebarOpen ? 'open' : ''}`} onClick={() => setIsSidebarOpen(false)}></div>
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <Image src="/logo.png" alt="Logo" width={40} height={40} />
           <h2>Gus School</h2>
         </div>
         <nav className="sidebar-nav">
-          <button className={`nav-item ${activeTab === "inicio" ? "active" : ""}`} onClick={() => setActiveTab("inicio")}>Dashboard</button>
-          {showCalendar && <button className={`nav-item ${activeTab === "calendario" ? "active" : ""}`} onClick={() => setActiveTab("calendario")}>Meu Calendário</button>}
-          {showMaterials && <button className={`nav-item ${activeTab === "materiais" ? "active" : ""}`} onClick={() => setActiveTab("materiais")}>Meus Materiais</button>}
-          {isParticular && <button className={`nav-item ${activeTab === "avaliacoes" ? "active" : ""}`} onClick={() => setActiveTab("avaliacoes")}>Avaliações</button>}
+          <button className={`nav-item ${activeTab === "inicio" ? "active" : ""}`} onClick={() => {setActiveTab("inicio"); setIsSidebarOpen(false);}}>Dashboard</button>
+          {showCalendar && <button className={`nav-item ${activeTab === "calendario" ? "active" : ""}`} onClick={() => {setActiveTab("calendario"); setIsSidebarOpen(false);}}>Meu Calendário</button>}
+          {showMaterials && <button className={`nav-item ${activeTab === "materiais" ? "active" : ""}`} onClick={() => {setActiveTab("materiais"); setIsSidebarOpen(false);}}>Meus Materiais</button>}
+          {isParticular && <button className={`nav-item ${activeTab === "avaliacoes" ? "active" : ""}`} onClick={() => {setActiveTab("avaliacoes"); setIsSidebarOpen(false);}}>Avaliações</button>}
           {showTeacherChat && (
-            <button className={`nav-item ${activeTab === "chat-private" ? "active" : ""}`} onClick={() => setActiveTab("chat-private")} style={{position: 'relative'}}>
+            <button className={`nav-item ${activeTab === "chat-private" ? "active" : ""}`} onClick={() => {setActiveTab("chat-private"); setIsSidebarOpen(false);}} style={{position: 'relative'}}>
               Chat com Teacher
               {hasUnread && activeTab !== "chat-private" && <span style={{position:'absolute', right:'10px', top:'50%', transform:'translateY(-50%)', width:'10px', height:'10px', borderRadius:'50%', background:'red'}}></span>}
             </button>
           )}
           {userProfile?.isPrivateRoomOpen && isParticular && (
-            <button className={`nav-item ${activeTab === "aula-particular" ? "active" : ""}`} onClick={() => setActiveTab("aula-particular")} style={{ color: 'var(--accent-gold)' }}>
+            <button className={`nav-item ${activeTab === "aula-particular" ? "active" : ""}`} onClick={() => {setActiveTab("aula-particular"); setIsSidebarOpen(false);}} style={{ color: 'var(--accent-gold)' }}>
               🎥 Aula Particular
             </button>
           )}
-          <button className={`nav-item ${activeTab === "chat-global" ? "active" : ""}`} onClick={() => setActiveTab("chat-global")}>Chat da Turma</button>
+          <button className={`nav-item ${activeTab === "chat-global" ? "active" : ""}`} onClick={() => {setActiveTab("chat-global"); setIsSidebarOpen(false);}} style={{position: 'relative'}}>
+            Chat da Turma
+            {hasUnreadGlobal && activeTab !== "chat-global" && <span style={{position:'absolute', right:'10px', top:'50%', transform:'translateY(-50%)', width:'10px', height:'10px', borderRadius:'50%', background:'red'}}></span>}
+          </button>
           {globalRoomOpen && (
-            <button className={`nav-item ${activeTab === "sala-global" ? "active" : ""}`} onClick={() => setActiveTab("sala-global")} style={{ color: 'var(--accent-gold)' }}>
+            <button className="nav-item" onClick={() => {window.open(globalRoomLink, "_blank"); setIsSidebarOpen(false);}} style={{ color: 'var(--accent-gold)' }}>
               🎥 Live da Turma
             </button>
           )}
@@ -341,7 +346,9 @@ export default function StudentDashboard() {
 
       <main className="dashboard-content">
         <header className="content-header">
-          <h1>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <button className="mobile-sidebar-btn" onClick={() => setIsSidebarOpen(true)}>☰</button>
+            <h1>
             {activeTab === "inicio" && "Bem-vindo de volta!"}
             {activeTab === "calendario" && "Sua Agenda de Aulas"}
             {activeTab === "materiais" && "Lições e PDFs"}
@@ -350,6 +357,7 @@ export default function StudentDashboard() {
             {activeTab === "aula-particular" && "Aula Ao Vivo"}
             {activeTab === "sala-global" && "Live da Turma"}
           </h1>
+          </div>
           <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <span style={{fontWeight: 'bold', color: 'var(--primary-blue)'}}>{userProfile?.name || 'Aluno(a)'}</span>
             <label style={{ cursor: 'pointer', position: 'relative' }} title="Clique para alterar a foto">
