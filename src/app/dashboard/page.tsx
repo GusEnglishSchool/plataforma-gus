@@ -331,10 +331,9 @@ export default function StudentDashboard() {
           )}
           <button className={`nav-item ${activeTab === "chat-global" ? "active" : ""}`} onClick={() => {setActiveTab("chat-global"); setIsSidebarOpen(false);}} style={{position: 'relative'}}>
             Chat da Turma
-            {hasUnreadGlobal && activeTab !== "chat-global" && <span style={{position:'absolute', right:'10px', top:'50%', transform:'translateY(-50%)', width:'10px', height:'10px', borderRadius:'50%', background:'red'}}></span>}
           </button>
           {globalRoomOpen && (
-            <button className="nav-item" onClick={() => {window.open(globalRoomLink, "_blank"); setIsSidebarOpen(false);}} style={{ color: 'var(--accent-gold)' }}>
+            <button className="nav-item" onClick={() => {window.open("https://meet.jit.si/GusEnglishSchool", "_blank"); setIsSidebarOpen(false);}} style={{ color: 'var(--accent-gold)' }}>
               🎥 Live da Turma
             </button>
           )}
