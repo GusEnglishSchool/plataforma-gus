@@ -76,6 +76,7 @@ export default function TeacherDashboard() {
   const [newEvent, setNewEvent] = useState({ title: "", start: "", end: "", link: "", studentId: "" });
   const [newPrivateMessage, setNewPrivateMessage] = useState("");
   const [newGlobalMessage, setNewGlobalMessage] = useState("");
+  const [selectedEventAction, setSelectedEventAction] = useState<any>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -271,7 +272,7 @@ export default function TeacherDashboard() {
       title: newEvent.title,
       start: new Date(newEvent.start).toISOString(),
       end: new Date(newEvent.end).toISOString(),
-      link: newEvent.link,
+      link: `https://meet.jit.si/GusEnglish_${newEvent.studentId}`,
       studentId: newEvent.studentId,
       studentName: student?.name || "Aluno"
     });
@@ -428,6 +429,23 @@ export default function TeacherDashboard() {
   return (
     <div className="dashboard-layout">
       <ConfirmModal isOpen={confirmState.isOpen} title={confirmState.title} message={confirmState.message} onConfirm={confirmState.action} onCancel={() => setConfirmState({...confirmState, isOpen: false})} />
+      
+      {selectedEventAction && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} style={{ background: 'white', padding: '2rem', borderRadius: '16px', maxWidth: '400px', width: '90%', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+            <h3 style={{ marginTop: 0, color: 'var(--primary-blue)', marginBottom: '10px' }}>{selectedEventAction.title}</h3>
+            <p style={{ color: '#666', marginBottom: '2rem' }}>O que deseja fazer com esta aula?</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button onClick={() => { window.open(selectedEventAction.link, '_blank'); setSelectedEventAction(null); }} className="btn-primary" style={{ padding: '12px', borderRadius: '8px', cursor: 'pointer', textAlign: 'center', fontWeight: 'bold' }}>Entrar na Sala (Jitsi)</button>
+              <button onClick={() => { 
+                 requestConfirm("Excluir Aula", `Deseja desmarcar a aula: ${selectedEventAction.title}?`, () => { handleDelete('calendar', selectedEventAction.id, 'esta aula'); }); 
+                 setSelectedEventAction(null); 
+              }} style={{ padding: '12px', borderRadius: '8px', background: 'transparent', color: 'red', border: '1px solid red', cursor: 'pointer', fontWeight: 'bold' }}>Excluir Aula</button>
+              <button onClick={() => setSelectedEventAction(null)} style={{ padding: '12px', borderRadius: '8px', border: 'none', background: '#f1f5f9', cursor: 'pointer', fontWeight: 'bold', color: '#333' }}>Cancelar</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
       <aside className="sidebar">
         <div className="sidebar-header">
           <Image src="/logo.png" alt="Logo" width={40} height={40} />
@@ -984,14 +1002,11 @@ export default function TeacherDashboard() {
                         <label style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary-blue)' }}>Fim da Aula</label>
                         <input type="datetime-local" value={newEvent.end} onChange={e => setNewEvent({...newEvent, end: e.target.value})} required style={{padding:'12px', borderRadius:'8px', border:'1px solid #ccc'}}/>
                       </div>
-                      <div style={{ gridColumn: '1 / -1' }}>
-                        <input type="url" placeholder="Link da Reunião (Meet/Zoom)" value={newEvent.link} onChange={e => setNewEvent({...newEvent, link: e.target.value})} style={{padding:'12px', borderRadius:'8px', border:'1px solid #ccc', width: '100%'}}/>
-                      </div>
                       <button type="submit" className="btn-secondary" style={{gridColumn:'1 / -1', borderRadius:'8px', padding:'12px', cursor: 'pointer'}}>Adicionar ao Calendário</button>
                     </form>
                   </div>
                   <div style={{height: '600px'}}>
-                    <Calendar localizer={localizer} events={events} startAccessor="start" endAccessor="end" messages={{ next: "Próx", previous: "Ant", today: "Hoje", month: "Mês", week: "Semana", day: "Dia" }} onSelectEvent={(event: any) => { requestConfirm("Excluir Aula", `Deseja desmarcar a aula: ${event.title}?`, () => { handleDelete('calendar', event.id, 'esta aula'); }); }} />
+                    <Calendar localizer={localizer} events={newEvent.studentId ? events.filter(e => e.studentId === newEvent.studentId) : events} startAccessor="start" endAccessor="end" messages={{ next: "Próx", previous: "Ant", today: "Hoje", month: "Mês", week: "Semana", day: "Dia" }} onSelectEvent={(event: any) => setSelectedEventAction(event)} />
                   </div>
                 </div>
               )}
