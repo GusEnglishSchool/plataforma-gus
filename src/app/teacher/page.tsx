@@ -173,21 +173,21 @@ export default function TeacherDashboard() {
   useEffect(() => {
     if(!selectedStudent || !currentUserUid) return;
 
-    const qTasks = query(collection(db, "tasks"), where("studentId", "==", selectedStudent.id));
+    const qTasks = query(collection(db, "tasks"), where("studentId", "==", selectedStudent.uid));
     const unsubTasks = onSnapshot(qTasks, (snap) => {
       const data: any[] = [];
       snap.forEach(d => data.push({ id: d.id, ...d.data() }));
       setTasks(data);
     });
 
-    const qMaterials = query(collection(db, "materials"), where("studentId", "==", selectedStudent.id));
+    const qMaterials = query(collection(db, "materials"), where("studentId", "==", selectedStudent.uid));
     const unsubMaterials = onSnapshot(qMaterials, (snap) => {
       const data: any[] = [];
       snap.forEach(d => data.push({ id: d.id, ...d.data() }));
       setMaterials(data);
     });
 
-    const chatId = [currentUserUid, selectedStudent.id].sort().join("_");
+    const chatId = [currentUserUid, selectedStudent.uid].sort().join("_");
     const qMessages = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "asc"));
     const unsubMessages = onSnapshot(qMessages, (snap) => {
       const data: any[] = [];
@@ -198,7 +198,7 @@ export default function TeacherDashboard() {
       setTimeout(scrollToBottom, 100);
     });
 
-    const qAssessments = query(collection(db, "assessments"), where("studentId", "==", selectedStudent.id));
+    const qAssessments = query(collection(db, "assessments"), where("studentId", "==", selectedStudent.uid));
     const unsubAssessments = onSnapshot(qAssessments, (snap) => {
       const data: any[] = [];
       snap.forEach(d => data.push({ id: d.id, ...d.data() }));
@@ -280,7 +280,7 @@ export default function TeacherDashboard() {
   const handleSendPrivateMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPrivateMessage.trim() || !selectedStudent || !currentUserUid) return;
-    const chatId = [currentUserUid, selectedStudent.id].sort().join("_");
+    const chatId = [currentUserUid, selectedStudent.uid].sort().join("_");
     await addDoc(collection(db, "chats", chatId, "messages"), {
       text: newPrivateMessage,
       senderName: "Teacher Gus",
@@ -309,7 +309,7 @@ export default function TeacherDashboard() {
     e.preventDefault();
     if (!selectedStudent || !newTask.trim()) return;
     await addDoc(collection(db, "tasks"), {
-      studentId: selectedStudent.id,
+      studentId: selectedStudent.uid,
       description: newTask,
       completed: false,
       createdAt: new Date().toISOString()
@@ -324,7 +324,7 @@ export default function TeacherDashboard() {
     try {
       await addDoc(collection(db, "materials"), {
         ...newMaterial,
-        studentId: selectedStudent.id,
+        studentId: selectedStudent.uid,
         createdAt: new Date().toISOString()
       });
       setNewMaterial({ title: "", url: "", studentId: "" });
@@ -359,7 +359,7 @@ export default function TeacherDashboard() {
     try {
       await addDoc(collection(db, "assessments"), {
         ...assessmentDraft,
-        studentId: selectedStudent.id,
+        studentId: selectedStudent.uid,
         status: 'Pendente',
         createdAt: new Date().toISOString()
       });
@@ -604,7 +604,7 @@ export default function TeacherDashboard() {
                         <p style={{margin:0, color:'#64748b'}}>{selectedStudent.email}</p>
                       </div>
                     </div>
-                    <button onClick={() => handleDeleteStudent(selectedStudent.id, selectedStudent.id)} style={{color:'red', border:'1px solid red', padding:'8px 16px', borderRadius:'8px', cursor: 'pointer', background: 'transparent'}}>Remover Aluno</button>
+                    <button onClick={() => handleDeleteStudent(selectedStudent.uid, selectedStudent.id)} style={{color:'red', border:'1px solid red', padding:'8px 16px', borderRadius:'8px', cursor: 'pointer', background: 'transparent'}}>Remover Aluno</button>
                   </div>
 
                   <div style={{display:'flex', gap:'1rem', marginBottom:'1.5rem', flexWrap: 'wrap'}}>
