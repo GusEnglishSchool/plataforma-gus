@@ -13,6 +13,7 @@ import 'moment/locale/pt-br';
 import { motion, AnimatePresence } from "framer-motion";
 import toast from 'react-hot-toast';
 import VideoRoom from '@/components/VideoRoom';
+import { Home, Calendar as CalendarIcon, BookOpen, Star, MessageSquare, Video, Users, Radio, Bot } from 'lucide-react';
 
 moment.locale('pt-br');
 const localizer = momentLocalizer(moment);
@@ -314,27 +315,34 @@ export default function StudentDashboard() {
           <h2>Gus School</h2>
         </div>
         <nav className="sidebar-nav">
-          <button className={`nav-item ${activeTab === "inicio" ? "active" : ""}`} onClick={() => {setActiveTab("inicio"); setIsSidebarOpen(false);}}>Dashboard</button>
-          {showCalendar && <button className={`nav-item ${activeTab === "calendario" ? "active" : ""}`} onClick={() => {setActiveTab("calendario"); setIsSidebarOpen(false);}}>Meu Calendário</button>}
-          {showMaterials && <button className={`nav-item ${activeTab === "materiais" ? "active" : ""}`} onClick={() => {setActiveTab("materiais"); setIsSidebarOpen(false);}}>Meus Materiais</button>}
-          {isParticular && <button className={`nav-item ${activeTab === "avaliacoes" ? "active" : ""}`} onClick={() => {setActiveTab("avaliacoes"); setIsSidebarOpen(false);}}>Avaliações</button>}
+          <button className={`nav-item ${activeTab === "inicio" ? "active" : ""}`} onClick={() => {setActiveTab("inicio"); setIsSidebarOpen(false);}} style={{display: 'flex', alignItems: 'center', gap: '10px'}}><Home size={20} /> Dashboard</button>
+          
+          {showCalendar && <button className={`nav-item ${activeTab === "calendario" ? "active" : ""}`} onClick={() => {setActiveTab("calendario"); setIsSidebarOpen(false);}} style={{display: 'flex', alignItems: 'center', gap: '10px'}}><CalendarIcon size={20} /> Meu Calendário</button>}
+          
+          {showMaterials && <button className={`nav-item ${activeTab === "materiais" ? "active" : ""}`} onClick={() => {setActiveTab("materiais"); setIsSidebarOpen(false);}} style={{display: 'flex', alignItems: 'center', gap: '10px'}}><BookOpen size={20} /> Meus Materiais</button>}
+          
+          {isParticular && <button className={`nav-item ${activeTab === "avaliacoes" ? "active" : ""}`} onClick={() => {setActiveTab("avaliacoes"); setIsSidebarOpen(false);}} style={{display: 'flex', alignItems: 'center', gap: '10px'}}><Star size={20} /> Avaliações</button>}
+          
           {showTeacherChat && (
-            <button className={`nav-item ${activeTab === "chat-private" ? "active" : ""}`} onClick={() => {setActiveTab("chat-private"); setIsSidebarOpen(false);}} style={{position: 'relative'}}>
-              Chat com Teacher
+            <button className={`nav-item ${activeTab === "chat-private" ? "active" : ""}`} onClick={() => {setActiveTab("chat-private"); setIsSidebarOpen(false);}} style={{position: 'relative', display: 'flex', alignItems: 'center', gap: '10px'}}>
+              <MessageSquare size={20} /> Chat com Teacher
               {hasUnread && activeTab !== "chat-private" && <span style={{position:'absolute', right:'10px', top:'50%', transform:'translateY(-50%)', width:'10px', height:'10px', borderRadius:'50%', background:'red'}}></span>}
             </button>
           )}
+          
           {userProfile?.isPrivateRoomOpen && isParticular && (
-            <button className={`nav-item ${activeTab === "aula-particular" ? "active" : ""}`} onClick={() => {setActiveTab("aula-particular"); setIsSidebarOpen(false);}} style={{ color: 'var(--accent-gold)' }}>
-              🎥 Aula Particular
+            <button className={`nav-item ${activeTab === "aula-particular" ? "active" : ""}`} onClick={() => {setActiveTab("aula-particular"); setIsSidebarOpen(false);}} style={{ color: 'var(--accent-gold)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Video size={20} /> Aula Particular
             </button>
           )}
-          <button className={`nav-item ${activeTab === "chat-global" ? "active" : ""}`} onClick={() => {setActiveTab("chat-global"); setIsSidebarOpen(false);}} style={{position: 'relative'}}>
-            Chat da Turma
+          
+          <button className={`nav-item ${activeTab === "chat-global" ? "active" : ""}`} onClick={() => {setActiveTab("chat-global"); setIsSidebarOpen(false);}} style={{position: 'relative', display: 'flex', alignItems: 'center', gap: '10px'}}>
+            <Users size={20} /> Chat da Turma
           </button>
+          
           {globalRoomOpen && (
-            <button className="nav-item" onClick={() => {window.open("https://meet.jit.si/GusEnglishSchool", "_blank"); setIsSidebarOpen(false);}} style={{ color: 'var(--accent-gold)' }}>
-              🎥 Live da Turma
+            <button className="nav-item" onClick={() => {window.open("https://meet.jit.si/GusEnglishSchool", "_blank"); setIsSidebarOpen(false);}} style={{ color: 'var(--accent-gold)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Radio size={20} /> Live da Turma
             </button>
           )}
         </nav>
