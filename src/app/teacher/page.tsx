@@ -544,15 +544,15 @@ export default function TeacherDashboard() {
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
                         <div>
                           <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', color: '#64748b', marginBottom: '0.5rem' }}>Nome Completo</label>
-                          <input type="text" placeholder="Ex: Robson Alencar" value={newStudent.name} onChange={e => setNewStudent({...newStudent, name: e.target.value})} required style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border:'1px solid #cbd5e1', outline: 'none', transition: 'border-color 0.2s' }}/>
+                          <input type="text" placeholder="Nome completo do aluno" value={newStudent.name} onChange={e => setNewStudent({...newStudent, name: e.target.value})} required autoComplete="off" style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border:'1px solid #cbd5e1', outline: 'none', transition: 'border-color 0.2s' }}/>
                         </div>
                         <div>
                           <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', color: '#64748b', marginBottom: '0.5rem' }}>Email de Acesso</label>
-                          <input type="email" placeholder="aluno@email.com" value={newStudent.email} onChange={e => setNewStudent({...newStudent, email: e.target.value})} required style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border:'1px solid #cbd5e1', outline: 'none', transition: 'border-color 0.2s' }}/>
+                          <input type="email" placeholder="aluno@email.com" value={newStudent.email} onChange={e => setNewStudent({...newStudent, email: e.target.value})} required autoComplete="new-email" style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border:'1px solid #cbd5e1', outline: 'none', transition: 'border-color 0.2s' }}/>
                         </div>
                         <div>
                           <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', color: '#64748b', marginBottom: '0.5rem' }}>Senha Inicial (Mín. 6)</label>
-                          <input type="password" placeholder="******" value={newStudent.password} onChange={e => setNewStudent({...newStudent, password: e.target.value})} required minLength={6} style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border:'1px solid #cbd5e1', outline: 'none', transition: 'border-color 0.2s' }}/>
+                          <input type="password" placeholder="******" value={newStudent.password} onChange={e => setNewStudent({...newStudent, password: e.target.value})} required minLength={6} autoComplete="new-password" style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border:'1px solid #cbd5e1', outline: 'none', transition: 'border-color 0.2s' }}/>
                         </div>
                       </div>
 
