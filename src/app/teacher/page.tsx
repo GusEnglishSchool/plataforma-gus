@@ -538,26 +538,52 @@ export default function TeacherDashboard() {
                   </div>
                   
                   {showAddStudent && (
-                    <motion.form initial={{height:0, opacity:0}} animate={{height:'auto', opacity:1}} onSubmit={handleCreateStudent} style={{ background: 'var(--bg-color)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                      <input type="text" placeholder="Nome" value={newStudent.name} onChange={e => setNewStudent({...newStudent, name: e.target.value})} required className="form-group input" style={{flex: '1 1 30%', padding: '12px', borderRadius: '8px', border:'1px solid #ccc'}}/>
-                      <input type="email" placeholder="Email" value={newStudent.email} onChange={e => setNewStudent({...newStudent, email: e.target.value})} required className="form-group input" style={{flex: '1 1 30%', padding: '12px', borderRadius: '8px', border:'1px solid #ccc'}}/>
-                      <input type="password" placeholder="Senha" value={newStudent.password} onChange={e => setNewStudent({...newStudent, password: e.target.value})} required minLength={6} className="form-group input" style={{flex: '1 1 30%', padding: '12px', borderRadius: '8px', border:'1px solid #ccc'}}/>
+                    <motion.form initial={{height:0, opacity:0}} animate={{height:'auto', opacity:1}} onSubmit={handleCreateStudent} style={{ background: '#f8fafc', padding: '2rem', borderRadius: '16px', marginBottom: '2rem', border: '1px solid #e2e8f0', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }}>
+                      <h4 style={{ margin: '0 0 1.5rem 0', color: 'var(--primary-blue)', fontSize: '1.2rem' }}>Dados do Novo Aluno</h4>
                       
-                      <select value={newStudent.modality} onChange={e => setNewStudent({...newStudent, modality: e.target.value})} className="form-group input" style={{flex: '1 1 45%', padding: '12px', borderRadius: '8px', border:'1px solid #ccc'}}>
-                        <option value="Particular">Particular</option>
-                        <option value="Hotmart">Hotmart</option>
-                      </select>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', color: '#64748b', marginBottom: '0.5rem' }}>Nome Completo</label>
+                          <input type="text" placeholder="Ex: Robson Alencar" value={newStudent.name} onChange={e => setNewStudent({...newStudent, name: e.target.value})} required style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border:'1px solid #cbd5e1', outline: 'none', transition: 'border-color 0.2s' }}/>
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', color: '#64748b', marginBottom: '0.5rem' }}>Email de Acesso</label>
+                          <input type="email" placeholder="aluno@email.com" value={newStudent.email} onChange={e => setNewStudent({...newStudent, email: e.target.value})} required style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border:'1px solid #cbd5e1', outline: 'none', transition: 'border-color 0.2s' }}/>
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', color: '#64748b', marginBottom: '0.5rem' }}>Senha Inicial (Mín. 6)</label>
+                          <input type="password" placeholder="******" value={newStudent.password} onChange={e => setNewStudent({...newStudent, password: e.target.value})} required minLength={6} style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border:'1px solid #cbd5e1', outline: 'none', transition: 'border-color 0.2s' }}/>
+                        </div>
+                      </div>
 
-                      {newStudent.modality === "Hotmart" && (
-                        <select value={newStudent.package} onChange={e => setNewStudent({...newStudent, package: e.target.value})} className="form-group input" style={{flex: '1 1 45%', padding: '12px', borderRadius: '8px', border:'1px solid #ccc'}}>
-                          <option value="Start your English">Start your English</option>
-                          <option value="English Evolution">English Evolution</option>
-                          <option value="Becoming Fluent">Becoming Fluent</option>
-                        </select>
-                      )}
+                      <h4 style={{ margin: '0 0 1.5rem 0', color: 'var(--primary-blue)', fontSize: '1.2rem', paddingTop: '1.5rem', borderTop: '1px solid #e2e8f0' }}>Plano e Acessos</h4>
 
-                      <div style={{ flex: '1 1 100%', display: 'flex', justifyContent: 'flex-end' }}>
-                        <button type="submit" className="btn-secondary" disabled={loading} style={{borderRadius:'8px', padding:'12px 30px'}}>{loading ? "..." : "Salvar"}</button>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', color: '#64748b', marginBottom: '0.5rem' }}>Modalidade</label>
+                          <select value={newStudent.modality} onChange={e => setNewStudent({...newStudent, modality: e.target.value})} style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border:'1px solid #cbd5e1', outline: 'none', backgroundColor: '#fff' }}>
+                            <option value="Particular">Aluno Particular (Acesso Total)</option>
+                            <option value="Hotmart">Aluno Hotmart (Acesso Restrito)</option>
+                          </select>
+                        </div>
+
+                        {newStudent.modality === "Hotmart" && (
+                          <motion.div initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}}>
+                            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', color: '#64748b', marginBottom: '0.5rem' }}>Pacote Comprado</label>
+                            <select value={newStudent.package} onChange={e => setNewStudent({...newStudent, package: e.target.value})} style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border:'1px solid #cbd5e1', outline: 'none', backgroundColor: '#fff' }}>
+                              <option value="Start your English">🥉 Start your English</option>
+                              <option value="English Evolution">🥈 English Evolution</option>
+                              <option value="Becoming Fluent">🥇 Becoming Fluent</option>
+                            </select>
+                          </motion.div>
+                        )}
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', paddingTop: '1.5rem', borderTop: '1px solid #e2e8f0' }}>
+                        <button type="button" onClick={() => setShowAddStudent(false)} style={{ padding: '12px 24px', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: 'transparent', color: '#64748b', fontWeight: 'bold', cursor: 'pointer' }}>Cancelar</button>
+                        <button type="submit" className="btn-secondary" disabled={loading} style={{ padding: '12px 32px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {loading ? "Criando conta..." : "Criar Aluno"}
+                        </button>
                       </div>
                     </motion.form>
                   )}
