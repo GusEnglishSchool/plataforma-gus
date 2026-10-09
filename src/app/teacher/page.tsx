@@ -44,19 +44,19 @@ export default function TeacherDashboard() {
   const [scenarios, setScenarios] = useState<any[]>([]);
   const [showAddScenario, setShowAddScenario] = useState(false);
   const [testingScenario, setTestingScenario] = useState<any>(null);
-  const [newScenario, setNewScenario] = useState({ title: '', level: 'BÃ¡sico', description: '', initialMessage: '', systemPrompt: '' });
+  const [newScenario, setNewScenario] = useState({ title: '', level: 'Básico', description: '', initialMessage: '', systemPrompt: '' });
   
   const [students, setStudents] = useState<any[]>([]);
   const [materials, setMaterials] = useState<any[]>([]);
   const [tasks, setTasks] = useState<any[]>([]);
   const [newTask, setNewTask] = useState("");
 
-  // LMS / AvaliaÃ§Ãµes
+  // LMS / Avaliações
   const [assessments, setAssessments] = useState<any[]>([]);
   const [showAssessmentBuilder, setShowAssessmentBuilder] = useState(false);
   const [assessmentDraft, setAssessmentDraft] = useState<any>({
     title: '',
-    type: 'LiÃ§Ã£o',
+    type: 'Lição',
     isGraded: false,
     dueDate: '',
     questions: []
@@ -218,8 +218,8 @@ export default function TeacherDashboard() {
       });
       setAssessments(data);
     }, (error) => {
-      console.error("Erro nas avaliaÃ§Ãµes:", error);
-      toast.error("Erro ao carregar avaliaÃ§Ãµes.");
+      console.error("Erro nas avaliações:", error);
+      toast.error("Erro ao carregar avaliações.");
     });
 
     if (selectedStudent.hasUnreadForTeacher && studentProfileTab === 'chat') {
@@ -248,11 +248,11 @@ export default function TeacherDashboard() {
         ...newScenario,
         createdAt: new Date().toISOString()
       });
-      toast.success("CenÃ¡rio criado com sucesso!");
+      toast.success("Cenário criado com sucesso!");
       setShowAddScenario(false);
-      setNewScenario({ title: '', level: 'BÃ¡sico', description: '', initialMessage: '', systemPrompt: '' });
+      setNewScenario({ title: '', level: 'Básico', description: '', initialMessage: '', systemPrompt: '' });
     } catch (err) {
-      toast.error("Erro ao criar cenÃ¡rio");
+      toast.error("Erro ao criar cenário");
     } finally {
       setLoading(false);
     }
@@ -260,11 +260,11 @@ export default function TeacherDashboard() {
 
   const handleDeleteScenario = async (id: string) => {
     requestConfirm(
-      "Excluir CenÃ¡rio",
-      "Tem certeza que deseja excluir este cenÃ¡rio? Os alunos nÃ£o poderÃ£o mais acessÃ¡-lo.",
+      "Excluir Cenário",
+      "Tem certeza que deseja excluir este cenário? Os alunos não poderão mais acessá-lo.",
       async () => {
         await deleteDoc(doc(db, "ai_scenarios", id));
-        toast.success("CenÃ¡rio excluÃ­do!");
+        toast.success("Cenário excluído!");
       }
     );
   };
@@ -307,7 +307,7 @@ export default function TeacherDashboard() {
     }
   };
   const handleDeleteStudent = (uid: string, docId: string) => {
-    requestConfirm("Remover Aluno", "Tem certeza que deseja remover este aluno? Ele perderÃ¡ acesso.", async () => {
+    requestConfirm("Remover Aluno", "Tem certeza que deseja remover este aluno? Ele perderá acesso.", async () => {
       try {
         // Primeiro deleta do Authentication via API
         const response = await fetch('/api/delete-user', {
@@ -390,7 +390,7 @@ export default function TeacherDashboard() {
       createdAt: new Date().toISOString()
     });
     setNewTask("");
-    toast.success("Tarefa atribuÃ­da!");
+    toast.success("Tarefa atribuída!");
   };
 
   const handleAddMaterial = async (e: React.FormEvent) => {
@@ -413,21 +413,21 @@ export default function TeacherDashboard() {
     e.preventDefault();
     if (!selectedStudent) return;
     if (assessmentDraft.questions.length === 0) {
-      toast.error("Adicione pelo menos uma questÃ£o.");
+      toast.error("Adicione pelo menos uma questão.");
       return;
     }
     
     for (const q of assessmentDraft.questions) {
-      if (!q.prompt?.trim() && !q.instruction?.trim()) return toast.error("Preencha o texto da pergunta ou a instruÃ§Ã£o para todas as questÃµes.");
+      if (!q.prompt?.trim() && !q.instruction?.trim()) return toast.error("Preencha o texto da pergunta ou a instrução para todas as questões.");
       // Fallback: if prompt is empty but instruction exists, use instruction as prompt
       if (!q.prompt?.trim() && q.instruction?.trim()) {
         q.prompt = q.instruction;
       }
       if ((q.type === 'multiple_choice' || q.type === 'checkboxes') && (!q.options || q.options.length < 2)) {
-        return toast.error("QuestÃµes de mÃºltipla escolha/caixas precisam de pelo menos 2 opÃ§Ãµes.");
+        return toast.error("Questões de múltipla escolha/caixas precisam de pelo menos 2 opções.");
       }
       if (q.type === 'match_columns' && (!q.leftOptions || !q.rightOptions || q.leftOptions.length < 2 || q.rightOptions.length < 2)) {
-        return toast.error("A questÃ£o de ligar colunas precisa ter pelo menos 2 itens em cada coluna.");
+        return toast.error("A questão de ligar colunas precisa ter pelo menos 2 itens em cada coluna.");
       }
     }
 
@@ -438,9 +438,9 @@ export default function TeacherDashboard() {
         status: 'Pendente',
         createdAt: new Date().toISOString()
       });
-      toast.success("AvaliaÃ§Ã£o enviada para o aluno!");
+      toast.success("Avaliação enviada para o aluno!");
       setShowAssessmentBuilder(false);
-      setAssessmentDraft({ title: '', type: 'LiÃ§Ã£o', isGraded: false, dueDate: '', questions: [] });
+      setAssessmentDraft({ title: '', type: 'Lição', isGraded: false, dueDate: '', questions: [] });
     } catch (error) {
       toast.error((error as Error).message);
     }
@@ -455,7 +455,7 @@ export default function TeacherDashboard() {
         grade: gradeDraft.grade,
         teacherFeedback: gradeDraft.feedback
       });
-      toast.success("AvaliaÃ§Ã£o corrigida com sucesso!");
+      toast.success("Avaliação corrigida com sucesso!");
       setGradingAssessment(null);
     } catch (err: any) {
       toast.error(err.message);
@@ -466,7 +466,7 @@ export default function TeacherDashboard() {
     requestConfirm("Excluir", `Tem certeza que deseja excluir ${name}?`, async () => {
       await deleteDoc(doc(db, col, id));
       setConfirmState({ ...confirmState, isOpen: false });
-      toast.success("ExcluÃ­do com sucesso.");
+      toast.success("Excluído com sucesso.");
     });
   };
 
@@ -530,7 +530,7 @@ export default function TeacherDashboard() {
           </button>
           <button className={`nav-item ${activeTab === "calendario" ? "active" : ""}`} onClick={() => {setActiveTab("calendario"); setIsSidebarOpen(false);}} style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
             <CalendarIcon size={20} />
-            CalendÃ¡rio
+            Calendário
           </button>
           <button className={`nav-item ${activeTab === "sala-global" ? "active" : ""}`} onClick={async () => {
             setActiveTab("sala-global");
@@ -559,7 +559,7 @@ export default function TeacherDashboard() {
         <header className="content-header">
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <button className="mobile-sidebar-btn" onClick={() => setIsSidebarOpen(true)}>â˜°</button>
-            <h1>{activeTab === "alunos" ? "Painel de Alunos" : activeTab === "calendario" ? "CalendÃ¡rio Geral" : activeTab === "sala-global" ? "Sala de Aula Global" : activeTab === "fluency-ia" ? "LaboratÃ³rio Fluency.IA" : "Chat da Turma"}</h1>
+            <h1>{activeTab === "alunos" ? "Painel de Alunos" : activeTab === "calendario" ? "Calendário Geral" : activeTab === "sala-global" ? "Sala de Aula Global" : activeTab === "fluency-ia" ? "Laboratório Fluency.IA" : "Chat da Turma"}</h1>
           </div>
           <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <span style={{fontWeight: 'bold', color: 'var(--primary-blue)'}}>Teacher Gustavo</span>
@@ -604,7 +604,7 @@ export default function TeacherDashboard() {
                           <input type="email" placeholder="aluno@email.com" value={newStudent.email} onChange={e => setNewStudent({...newStudent, email: e.target.value})} required autoComplete="new-email" style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border:'1px solid #cbd5e1', outline: 'none', transition: 'border-color 0.2s' }}/>
                         </div>
                         <div>
-                          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', color: '#64748b', marginBottom: '0.5rem' }}>Senha Inicial (MÃ­n. 6)</label>
+                          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', color: '#64748b', marginBottom: '0.5rem' }}>Senha Inicial (Mín. 6)</label>
                           <input type="password" placeholder="******" value={newStudent.password} onChange={e => setNewStudent({...newStudent, password: e.target.value})} required minLength={6} autoComplete="new-password" style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border:'1px solid #cbd5e1', outline: 'none', transition: 'border-color 0.2s' }}/>
                         </div>
                       </div>
@@ -648,7 +648,7 @@ export default function TeacherDashboard() {
                       <>
                         {pendingStudents.length > 0 && (
                           <div style={{ marginBottom: '2rem' }}>
-                            <h3 style={{ color: 'var(--accent-gold)', marginBottom: '1rem' }}>Alunos Pendentes (Aguardando AprovaÃ§Ã£o)</h3>
+                            <h3 style={{ color: 'var(--accent-gold)', marginBottom: '1rem' }}>Alunos Pendentes (Aguardando Aprovação)</h3>
                             <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(300px, 1fr))', gap:'1.5rem'}}>
                               {pendingStudents.map(s => (
                                 <div key={s.id} style={{ background: '#fffbeb', border:'1px solid #fde68a', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 2px 4px rgba(0,0,0,0.02)'}}>
@@ -748,7 +748,7 @@ export default function TeacherDashboard() {
                       }} style={{cursor: 'pointer', padding:'10px 20px', borderRadius:'30px', background: studentProfileTab === t ? 'var(--primary-blue)' : 'white', color: studentProfileTab === t ? 'white' : 'var(--primary-blue)', fontWeight:'bold', border: studentProfileTab === t ? 'none' : '1px solid var(--primary-blue)'}}>
                         {t === 'tarefas' && "Tarefas"}
                         {t === 'materiais' && "Materiais"}
-                        {t === 'avaliacoes' && "AvaliaÃ§Ãµes (LMS)"}
+                        {t === 'avaliacoes' && "Avaliações (LMS)"}
                         {t === 'video' && "ðŸŽ¥ Aula Ao Vivo"}
                         {t === 'chat' && "Chat Privado" + (selectedStudent.hasUnreadForTeacher ? " ðŸ”´" : "")}
                       </button>
@@ -768,7 +768,7 @@ export default function TeacherDashboard() {
                             <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: t.completed ? '#e8f5e9' : 'var(--bg-color)', borderRadius: '8px' }}>
                               <div>
                                 <span style={{ textDecoration: t.completed ? 'line-through' : 'none', fontWeight:'500' }}>{t.description}</span>
-                                <div style={{fontSize:'0.8rem', color:'#666', marginTop:'5px'}}>Criada em {moment(t.createdAt).format('DD/MM/YYYY')} â€¢ Status: <strong style={{color: t.completed ? 'green' : 'orange'}}>{t.completed ? 'ConcluÃ­da' : 'Pendente'}</strong></div>
+                                <div style={{fontSize:'0.8rem', color:'#666', marginTop:'5px'}}>Criada em {moment(t.createdAt).format('DD/MM/YYYY')} â€¢ Status: <strong style={{color: t.completed ? 'green' : 'orange'}}>{t.completed ? 'Concluída' : 'Pendente'}</strong></div>
                               </div>
                               <button onClick={() => handleDelete('tasks', t.id, 'esta tarefa')} style={{color:'red', background: 'transparent', border: 'none', cursor: 'pointer'}}>Excluir</button>
                             </div>
@@ -803,20 +803,20 @@ export default function TeacherDashboard() {
                         {showAssessmentBuilder ? (
                           <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                              <h3 style={{ margin: 0, color: 'var(--primary-blue)' }}>Criar Nova AvaliaÃ§Ã£o</h3>
+                              <h3 style={{ margin: 0, color: 'var(--primary-blue)' }}>Criar Nova Avaliação</h3>
                               <button onClick={() => setShowAssessmentBuilder(false)} style={{ color: '#666', border: 'none', background: 'transparent', cursor: 'pointer' }}>Cancelar</button>
                             </div>
 
                             <form onSubmit={handleSaveAssessment} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                               <div style={{ display: 'flex', gap: '1rem' }}>
                                 <div style={{ flex: 2 }}>
-                                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: 'var(--primary-blue)' }}>TÃ­tulo</label>
+                                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: 'var(--primary-blue)' }}>Título</label>
                                   <input type="text" required value={assessmentDraft.title} onChange={e => setAssessmentDraft({...assessmentDraft, title: e.target.value})} placeholder="Ex: Quiz Unit 1" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc' }} />
                                 </div>
                                 <div style={{ flex: 1 }}>
                                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: 'var(--primary-blue)' }}>Tipo</label>
                                   <select value={assessmentDraft.type} onChange={e => setAssessmentDraft({...assessmentDraft, type: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc' }}>
-                                    <option value="LiÃ§Ã£o">LiÃ§Ã£o</option>
+                                    <option value="Lição">Lição</option>
                                     <option value="Prova">Prova</option>
                                   </select>
                                 </div>
@@ -835,7 +835,7 @@ export default function TeacherDashboard() {
 
                               <hr style={{ border: 'none', borderTop: '1px solid #ccc', margin: '1rem 0' }} />
                               
-                              <h4 style={{ color: 'var(--primary-blue)' }}>QuestÃµes</h4>
+                              <h4 style={{ color: 'var(--primary-blue)' }}>Questões</h4>
                               
                               {assessmentDraft.questions.map((q: any, qIndex: number) => (
                                 <div key={q.id} style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', border: '1px solid #ccc', position: 'relative' }}>
@@ -843,7 +843,7 @@ export default function TeacherDashboard() {
                                     const newQs = [...assessmentDraft.questions];
                                     newQs.splice(qIndex, 1);
                                     setAssessmentDraft({...assessmentDraft, questions: newQs});
-                                  }} style={{ position: 'absolute', top: '10px', right: '10px', color: 'red', border: 'none', background: 'transparent', cursor: 'pointer' }}>Remover QuestÃ£o</button>
+                                  }} style={{ position: 'absolute', top: '10px', right: '10px', color: 'red', border: 'none', background: 'transparent', cursor: 'pointer' }}>Remover Questão</button>
                                   
                                   <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', marginTop: '10px' }}>
                                     <div style={{ flex: 2, display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -853,7 +853,7 @@ export default function TeacherDashboard() {
                                           newQs[qIndex].number = e.target.value;
                                           setAssessmentDraft({...assessmentDraft, questions: newQs});
                                         }} style={{ width: '130px', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '1.1rem', fontWeight: 'bold' }} />
-                                        <input type="text" placeholder="TÃ­tulo / InstruÃ§Ã£o (Opcional). Ex: Complete with am, is, are" value={q.instruction || ''} onChange={e => {
+                                        <input type="text" placeholder="Título / Instrução (Opcional). Ex: Complete with am, is, are" value={q.instruction || ''} onChange={e => {
                                           const newQs = [...assessmentDraft.questions];
                                           newQs[qIndex].instruction = e.target.value;
                                           setAssessmentDraft({...assessmentDraft, questions: newQs});
@@ -870,27 +870,27 @@ export default function TeacherDashboard() {
                                         setAssessmentDraft({...assessmentDraft, questions: newQs});
                                       }} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '1.1rem', fontFamily: 'inherit' }} />
                                       
-                                      {q.type === 'fill_in_the_blanks' && <small style={{ color: '#666', marginTop: '-5px', display: 'block' }}>Dica: digite 3 underlines (___) onde quiser que a lacuna apareÃ§a. Aceita quebras de linha!</small>}
-                                      {q.type === 'inline_dropdown' && <small style={{ color: '#666', marginTop: '-5px', display: 'block' }}>Dica: coloque as opÃ§Ãµes entre colchetes separadas por barra. Ex: [am/is/are]</small>}
+                                      {q.type === 'fill_in_the_blanks' && <small style={{ color: '#666', marginTop: '-5px', display: 'block' }}>Dica: digite 3 underlines (___) onde quiser que a lacuna apareça. Aceita quebras de linha!</small>}
+                                      {q.type === 'inline_dropdown' && <small style={{ color: '#666', marginTop: '-5px', display: 'block' }}>Dica: coloque as opções entre colchetes separadas por barra. Ex: [am/is/are]</small>}
                                     </div>
                                     <div style={{ flex: 1 }}>
                                       <select value={q.type} onChange={e => {
                                         const newQs = [...assessmentDraft.questions];
                                         newQs[qIndex].type = e.target.value;
                                         if (e.target.value === 'multiple_choice' || e.target.value === 'checkboxes') {
-                                          newQs[qIndex].options = ['OpÃ§Ã£o 1'];
+                                          newQs[qIndex].options = ['Opção 1'];
                                         } else if (e.target.value === 'match_columns') {
                                           newQs[qIndex].leftOptions = ['Item 1', 'Item 2'];
-                                          newQs[qIndex].rightOptions = ['OpÃ§Ã£o A', 'OpÃ§Ã£o B'];
+                                          newQs[qIndex].rightOptions = ['Opção A', 'Opção B'];
                                         } else {
                                           newQs[qIndex].options = [];
                                         }
                                         setAssessmentDraft({...assessmentDraft, questions: newQs});
                                       }} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc' }}>
                                         <option value="short_answer">Resposta Curta</option>
-                                        <option value="paragraph">ParÃ¡grafo</option>
-                                        <option value="multiple_choice">MÃºltipla Escolha</option>
-                                        <option value="checkboxes">Caixas de SeleÃ§Ã£o</option>
+                                        <option value="paragraph">Parágrafo</option>
+                                        <option value="multiple_choice">Múltipla Escolha</option>
+                                        <option value="checkboxes">Caixas de Seleção</option>
                                         <option value="fill_in_the_blanks">Completar Lacunas ( ___ )</option>
                                         <option value="inline_dropdown">Escolha na Linha ( [a/b] )</option>
                                         <option value="match_columns">Ligar Colunas</option>
@@ -917,16 +917,16 @@ export default function TeacherDashboard() {
                                       ))}
                                       <button type="button" onClick={() => {
                                         const newQs = [...assessmentDraft.questions];
-                                        newQs[qIndex].options.push(`OpÃ§Ã£o ${newQs[qIndex].options.length + 1}`);
+                                        newQs[qIndex].options.push(`Opção ${newQs[qIndex].options.length + 1}`);
                                         setAssessmentDraft({...assessmentDraft, questions: newQs});
-                                      }} style={{ color: 'var(--secondary-blue)', border: 'none', background: 'transparent', cursor: 'pointer', fontWeight: 'bold', marginTop: '5px' }}>+ Adicionar opÃ§Ã£o</button>
+                                      }} style={{ color: 'var(--secondary-blue)', border: 'none', background: 'transparent', cursor: 'pointer', fontWeight: 'bold', marginTop: '5px' }}>+ Adicionar opção</button>
                                     </div>
                                   )}
 
                                   {(q.type === 'match_columns') && (
                                     <div style={{ display: 'flex', gap: '2rem', paddingLeft: '1rem', marginTop: '1rem' }}>
                                       <div style={{ flex: 1 }}>
-                                        <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>Coluna da Esquerda (NÃºmeros)</p>
+                                        <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>Coluna da Esquerda (Números)</p>
                                         {q.leftOptions?.map((opt: string, optIndex: number) => (
                                           <div key={optIndex} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                                             <span style={{ fontWeight: 'bold' }}>{optIndex + 1}.</span>
@@ -967,16 +967,16 @@ export default function TeacherDashboard() {
                                         ))}
                                         <button type="button" onClick={() => {
                                           const newQs = [...assessmentDraft.questions];
-                                          newQs[qIndex].rightOptions.push(`OpÃ§Ã£o ${newQs[qIndex].rightOptions.length + 1}`);
+                                          newQs[qIndex].rightOptions.push(`Opção ${newQs[qIndex].rightOptions.length + 1}`);
                                           setAssessmentDraft({...assessmentDraft, questions: newQs});
-                                        }} style={{ color: 'var(--secondary-blue)', border: 'none', background: 'transparent', cursor: 'pointer', fontWeight: 'bold', marginTop: '5px' }}>+ Adicionar OpÃ§Ã£o Direita</button>
+                                        }} style={{ color: 'var(--secondary-blue)', border: 'none', background: 'transparent', cursor: 'pointer', fontWeight: 'bold', marginTop: '5px' }}>+ Adicionar Opção Direita</button>
                                       </div>
                                     </div>
                                   )}
                                 </div>
                               ))}
 
-                              <button type="button" onClick={() => setAssessmentDraft({...assessmentDraft, questions: [...assessmentDraft.questions, { id: Date.now().toString(), type: 'short_answer', prompt: '', options: [] }]})} style={{ alignSelf: 'flex-start', padding: '10px 20px', borderRadius: '8px', border: '2px dashed var(--primary-blue)', color: 'var(--primary-blue)', background: 'transparent', cursor: 'pointer', fontWeight: 'bold' }}>+ Adicionar Nova QuestÃ£o</button>
+                              <button type="button" onClick={() => setAssessmentDraft({...assessmentDraft, questions: [...assessmentDraft.questions, { id: Date.now().toString(), type: 'short_answer', prompt: '', options: [] }]})} style={{ alignSelf: 'flex-start', padding: '10px 20px', borderRadius: '8px', border: '2px dashed var(--primary-blue)', color: 'var(--primary-blue)', background: 'transparent', cursor: 'pointer', fontWeight: 'bold' }}>+ Adicionar Nova Questão</button>
 
                               <button type="submit" className="btn-primary" style={{ marginTop: '1rem', borderRadius: '8px', padding: '15px', cursor: 'pointer' }}>Atribuir ao Aluno</button>
                             </form>
@@ -1001,12 +1001,12 @@ export default function TeacherDashboard() {
                                             Object.keys(answer).map(k => {
                                               const rightIndex = parseInt(k);
                                               const leftItemIndex = parseInt(answer[k]) - 1;
-                                              const rightText = q.rightOptions?.[rightIndex] || `OpÃ§Ã£o ${rightIndex + 1}`;
+                                              const rightText = q.rightOptions?.[rightIndex] || `Opção ${rightIndex + 1}`;
                                               const leftText = q.leftOptions?.[leftItemIndex] || `Item ${answer[k]}`;
                                               return <div key={k}><strong>{leftText} <span style={{color: '#999', fontWeight: 'normal', fontSize: '0.9em'}}>(NÂº {answer[k]})</span>:</strong> {rightText}</div>
                                             })
                                           : Object.keys(answer).map(k => <div key={k}><strong>Lacuna {parseInt(k) + 1}:</strong> {answer[k]}</div>) 
-                                       : (answer || <em style={{color: '#999'}}>NÃ£o respondida</em>)}
+                                       : (answer || <em style={{color: '#999'}}>Não respondida</em>)}
                                     </div>
                                   </div>
                                 );
@@ -1021,18 +1021,18 @@ export default function TeacherDashboard() {
                                 </div>
                               )}
                               <div>
-                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: 'var(--primary-blue)' }}>ComentÃ¡rios / Feedback</label>
+                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: 'var(--primary-blue)' }}>Comentários / Feedback</label>
                                 <textarea value={gradeDraft.feedback} onChange={e => setGradeDraft({...gradeDraft, feedback: e.target.value})} placeholder="Escreva um feedback para o aluno..." rows={4} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc' }} />
                               </div>
-                              <button type="submit" className="btn-primary" style={{ alignSelf: 'flex-start', borderRadius: '8px', padding: '12px 30px', cursor: 'pointer' }}>Finalizar CorreÃ§Ã£o</button>
+                              <button type="submit" className="btn-primary" style={{ alignSelf: 'flex-start', borderRadius: '8px', padding: '12px 30px', cursor: 'pointer' }}>Finalizar Correção</button>
                             </form>
                           </div>
                         ) : (
                           <div>
-                            <button onClick={() => setShowAssessmentBuilder(true)} className="btn-primary" style={{ marginBottom: '2rem', borderRadius: '8px', padding: '10px 20px', cursor: 'pointer' }}>+ Criar Nova AvaliaÃ§Ã£o</button>
+                            <button onClick={() => setShowAssessmentBuilder(true)} className="btn-primary" style={{ marginBottom: '2rem', borderRadius: '8px', padding: '10px 20px', cursor: 'pointer' }}>+ Criar Nova Avaliação</button>
                             
                             {assessments.length === 0 ? (
-                              <p style={{ color: '#666', textAlign: 'center' }}>Nenhuma avaliaÃ§Ã£o atribuÃ­da para este aluno.</p>
+                              <p style={{ color: '#666', textAlign: 'center' }}>Nenhuma avaliação atribuída para este aluno.</p>
                             ) : (
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                 {assessments.map(a => (
@@ -1050,9 +1050,9 @@ export default function TeacherDashboard() {
                                         <button onClick={() => { setGradingAssessment(a); setGradeDraft({ grade: '', feedback: '' }); }} className="btn-primary" style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>Corrigir</button>
                                       )}
                                       {a.status === 'Corrigida' && (
-                                        <button onClick={() => { setGradingAssessment(a); setGradeDraft({ grade: a.grade || '', feedback: a.teacherFeedback || '' }); }} className="btn-secondary" style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', background: '#ccc', color: '#333' }}>Ver CorreÃ§Ã£o</button>
+                                        <button onClick={() => { setGradingAssessment(a); setGradeDraft({ grade: a.grade || '', feedback: a.teacherFeedback || '' }); }} className="btn-secondary" style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', background: '#ccc', color: '#333' }}>Ver Correção</button>
                                       )}
-                                      <button onClick={() => handleDelete('assessments', a.id, 'esta avaliaÃ§Ã£o')} style={{ color: 'red', border: '1px solid red', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', background: 'transparent' }}>Excluir</button>
+                                      <button onClick={() => handleDelete('assessments', a.id, 'esta avaliação')} style={{ color: 'red', border: '1px solid red', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', background: 'transparent' }}>Excluir</button>
                                     </div>
                                   </div>
                                 ))}
@@ -1116,21 +1116,21 @@ export default function TeacherDashboard() {
                         </select>
                       </div>
                       <div style={{ gridColumn: '1 / -1' }}>
-                         <input type="text" placeholder="TÃ­tulo (ex: Aula ConversaÃ§Ã£o)" value={newEvent.title} onChange={e => setNewEvent({...newEvent, title: e.target.value})} required style={{padding:'12px', borderRadius:'8px', border:'1px solid #ccc', width: '100%'}}/>
+                         <input type="text" placeholder="Título (ex: Aula Conversação)" value={newEvent.title} onChange={e => setNewEvent({...newEvent, title: e.target.value})} required style={{padding:'12px', borderRadius:'8px', border:'1px solid #ccc', width: '100%'}}/>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                        <label style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary-blue)' }}>InÃ­cio da Aula</label>
+                        <label style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary-blue)' }}>Início da Aula</label>
                         <input type="datetime-local" value={newEvent.start} onChange={e => setNewEvent({...newEvent, start: e.target.value})} required style={{padding:'12px', borderRadius:'8px', border:'1px solid #ccc'}}/>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                         <label style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary-blue)' }}>Fim da Aula</label>
                         <input type="datetime-local" value={newEvent.end} onChange={e => setNewEvent({...newEvent, end: e.target.value})} required style={{padding:'12px', borderRadius:'8px', border:'1px solid #ccc'}}/>
                       </div>
-                      <button type="submit" className="btn-secondary" style={{gridColumn:'1 / -1', borderRadius:'8px', padding:'12px', cursor: 'pointer'}}>Adicionar ao CalendÃ¡rio</button>
+                      <button type="submit" className="btn-secondary" style={{gridColumn:'1 / -1', borderRadius:'8px', padding:'12px', cursor: 'pointer'}}>Adicionar ao Calendário</button>
                     </form>
                   </div>
                   <div style={{height: '600px'}}>
-                    <Calendar localizer={localizer} events={newEvent.studentId ? events.filter(e => e.studentId === newEvent.studentId) : events} startAccessor="start" endAccessor="end" messages={{ next: "PrÃ³x", previous: "Ant", today: "Hoje", month: "MÃªs", week: "Semana", day: "Dia" }} onSelectEvent={(event: any) => setSelectedEventAction(event)} />
+                    <Calendar localizer={localizer} events={newEvent.studentId ? events.filter(e => e.studentId === newEvent.studentId) : events} startAccessor="start" endAccessor="end" messages={{ next: "Próx", previous: "Ant", today: "Hoje", month: "Mês", week: "Semana", day: "Dia" }} onSelectEvent={(event: any) => setSelectedEventAction(event)} />
                   </div>
                 </div>
               )}
@@ -1138,7 +1138,7 @@ export default function TeacherDashboard() {
               {activeTab === "chat-global" && (
                  <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '650px' }}>
                  <div style={{ paddingBottom: '1rem', borderBottom: '1px solid #eee', marginBottom: '1rem' }}>
-                   <p style={{ color: '#666', margin: 0 }}>Este Ã© o espaÃ§o de interaÃ§Ã£o geral.</p>
+                   <p style={{ color: '#666', margin: 0 }}>Este é o espaço de interação geral.</p>
                  </div>
                  <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', background: 'var(--bg-color)', borderRadius: '12px', marginBottom: '1rem', display:'flex', flexDirection:'column', gap:'15px' }}>
                    {globalMessages.length === 0 && <p style={{textAlign:'center', color:'#999', marginTop:'auto', marginBottom:'auto'}}>Inicie a conversa!</p>}
@@ -1186,7 +1186,7 @@ export default function TeacherDashboard() {
               {activeTab === "alunos" && selectedStudent && studentProfileTab === "video" && (
                 <div className="card">
                   <h2 style={{ color: 'var(--primary-blue)', marginBottom: '10px' }}>Aula Ao Vivo: {selectedStudent.name}</h2>
-                  <p style={{ color: '#666', marginBottom: '1rem' }}>Esta sala Ã© privada apenas para vocÃª e o aluno.</p>
+                  <p style={{ color: '#666', marginBottom: '1rem' }}>Esta sala é privada apenas para você e o aluno.</p>
                   <VideoRoom 
                     roomName={`GusEnglish_Private_${selectedStudent.id}`} 
                     userName="Teacher Gus" 
@@ -1223,12 +1223,12 @@ export default function TeacherDashboard() {
                 <div>
                   <h2 style={{ color: '#7e22ce', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.8rem', margin: '0 0 8px 0' }}>
                     <div style={{ background: '#a855f7', padding: '12px', borderRadius: '16px', display: 'flex', color: 'white', boxShadow: '0 4px 12px rgba(168, 85, 247, 0.3)' }}><Bot size={28} /></div>
-                    LaboratÃ³rio de CenÃ¡rios
+                    Laboratório de Cenários
                   </h2>
-                  <p style={{ color: '#6b7280', margin: 0, fontSize: '1.1rem' }}>Crie experiÃªncias imersivas de conversaÃ§Ã£o para seus alunos com a Fluency.IA.</p>
+                  <p style={{ color: '#6b7280', margin: 0, fontSize: '1.1rem' }}>Crie experiências imersivas de conversação para seus alunos com a Fluency.IA.</p>
                 </div>
                 <button onClick={() => setShowAddScenario(!showAddScenario)} style={{ padding: '14px 28px', borderRadius: '14px', background: showAddScenario ? '#ef4444' : '#9333ea', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem', boxShadow: showAddScenario ? '0 4px 12px rgba(239, 68, 68, 0.2)' : '0 4px 12px rgba(147, 51, 234, 0.2)', transition: 'all 0.3s' }}>
-                  {showAddScenario ? "Cancelar CriaÃ§Ã£o" : "+ Novo CenÃ¡rio MÃ¡gico"}
+                  {showAddScenario ? "Cancelar Criação" : "+ Novo Cenário Mágico"}
                 </button>
               </div>
 
@@ -1237,54 +1237,79 @@ export default function TeacherDashboard() {
                   <motion.form initial={{ height: 0, opacity: 0, scale: 0.95 }} animate={{ height: 'auto', opacity: 1, scale: 1 }} exit={{ height: 0, opacity: 0, scale: 0.95 }} transition={{ duration: 0.3 }} onSubmit={handleCreateScenario} style={{ background: 'white', padding: '2.5rem', borderRadius: '24px', boxShadow: '0 10px 40px -10px rgba(0,0,0,0.08)', border: '1px solid #f1f5f9' }}>
                     <h3 style={{ color: '#334155', marginTop: 0, marginBottom: '2rem', fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <span style={{ display: 'inline-block', width: '8px', height: '24px', background: '#a855f7', borderRadius: '4px' }}></span>
-                      ConfiguraÃ§Ã£o do Novo CenÃ¡rio
+                      Configuração do Novo Cenário
                     </h3>
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>TÃ­tulo da ExperiÃªncia</label>
-                        <input type="text" value={newScenario.title} onChange={e => setNewScenario({...newScenario, title: e.target.value})} placeholder="Ex: ImigraÃ§Ã£o no Aeroporto JFK" required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '1rem', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = '#a855f7'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+                        <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Título da Experiência</label>
+                        <input type="text" value={newScenario.title} onChange={e => setNewScenario({...newScenario, title: e.target.value})} placeholder="Ex: Imigração no Aeroporto JFK" required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '1rem', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = '#a855f7'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
                       </div>
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>NÃ­vel de Dificuldade</label>
+                        <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Nível de Dificuldade</label>
                         <select value={newScenario.level} onChange={e => setNewScenario({...newScenario, level: e.target.value})} style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', background: 'white', outline: 'none', fontSize: '1rem', cursor: 'pointer' }}>
-                          <option value="BÃ¡sico">ðŸŸ© BÃ¡sico</option>
-                          <option value="IntermediÃ¡rio">ðŸŸ¨ IntermediÃ¡rio</option>
-                          <option value="AvanÃ§ado">ðŸŸ¥ AvanÃ§ado</option>
+                          <option value="Básico">🟢 Básico</option>
+                          <option value="Intermediário">🟡 Intermediário</option>
+                          <option value="Avançado">🔴 Avançado</option>
                         </select>
                       </div>
                     </div>
                     
                     <div style={{ marginBottom: '1.5rem' }}>
-                      <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>DescriÃ§Ã£o (O que o aluno vai ver)</label>
-                      <input type="text" value={newScenario.description} onChange={e => setNewScenario({...newScenario, description: e.target.value})} placeholder="Ex: VocÃª acabou de pousar em NY. Fale com o oficial e consiga sua permissÃ£o de entrada." required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '1rem', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = '#a855f7'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+                      <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Descrição (O que o aluno vai ver)</label>
+                      <input type="text" value={newScenario.description} onChange={e => setNewScenario({...newScenario, description: e.target.value})} placeholder="Ex: Você acabou de pousar em NY. Fale com o oficial e consiga sua permissão de entrada." required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '1rem', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = '#a855f7'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
                     </div>
                     
                     <div style={{ marginBottom: '1.5rem' }}>
-                      <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>1Âª Fala da InteligÃªncia Artificial (Em InglÃªs)</label>
+                      <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>1Âª Fala da Inteligência Artificial (Em Inglês)</label>
                       <input type="text" value={newScenario.initialMessage} onChange={e => setNewScenario({...newScenario, initialMessage: e.target.value})} placeholder="Ex: Next in line! Passport and purpose of your visit, please." required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '1rem', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = '#a855f7'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
                     </div>
                     
                     <div style={{ marginBottom: '2rem' }}>
                       <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Comportamento Secreto (Prompt para o ChatGPT)</label>
-                      <textarea value={newScenario.systemPrompt} onChange={e => setNewScenario({...newScenario, systemPrompt: e.target.value})} placeholder="InstruÃ§Ãµes de como a IA deve agir. Ex: VocÃª Ã© um oficial de imigraÃ§Ã£o sÃ©rio. FaÃ§a perguntas curtas, uma de cada vez. Se o aluno nÃ£o souber responder, tente ajudar com palavras simples." required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '1rem', minHeight: '120px', resize: 'vertical', fontFamily: 'monospace', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = '#a855f7'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+                      <textarea value={newScenario.systemPrompt} onChange={e => setNewScenario({...newScenario, systemPrompt: e.target.value})} placeholder="Instruções de como a IA deve agir. Ex: Você é um oficial de imigração sério. Faça perguntas curtas, uma de cada vez. Se o aluno não souber responder, tente ajudar com palavras simples." required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '1rem', minHeight: '120px', resize: 'vertical', fontFamily: 'monospace', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = '#a855f7'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
                     </div>
                     
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
                       <button type="button" onClick={() => setShowAddScenario(false)} style={{ padding: '14px 24px', borderRadius: '12px', background: '#f1f5f9', color: '#64748b', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem' }}>Cancelar</button>
                       <button type="submit" disabled={loading} style={{ padding: '14px 32px', borderRadius: '12px', background: '#a855f7', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem', boxShadow: '0 4px 12px rgba(168, 85, 247, 0.3)' }}>
-                        {loading ? "Salvando MÃ¡gica..." : "Salvar CenÃ¡rio"}
+                        {loading ? "Salvando Mágica..." : "Salvar Cenário"}
                       </button>
                     </div>
                   </motion.form>
                 )}
               </AnimatePresence>
 
+              <div style={{ background: 'white', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: '1px solid #f1f5f9', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                <h3 style={{ margin: '0 0 1rem 0', color: '#1e293b', fontSize: '1.2rem' }}>Alunos com Acesso à IA e Custos</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+                  {students.filter(u => u.hasFluencyAccess).map(student => (
+                    <div key={student.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#a855f7', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                          {student.name.charAt(0)}
+                        </div>
+                        <div>
+                          <p style={{ margin: 0, fontWeight: 'bold', color: '#334155' }}>{student.name}</p>
+                          <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>{student.email}</p>
+                        </div>
+                      </div>
+                      <div style={{ background: '#fef3c7', color: '#b45309', padding: '6px 12px', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                        R$ {(student.totalFluencyCost || 0).toFixed(2).replace('.', ',')}
+                      </div>
+                    </div>
+                  ))}
+                  {students.filter(u => u.hasFluencyAccess).length === 0 && (
+                    <p style={{ color: '#94a3b8', margin: 0, fontStyle: 'italic' }}>Nenhum aluno com acesso liberado ainda.</p>
+                  )}
+                </div>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.5rem' }}>
                 {scenarios.map(s => (
                   <div key={s.id} style={{ background: 'white', padding: '2rem', borderRadius: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', border: '1px solid #f1f5f9', position: 'relative', display: 'flex', flexDirection: 'column', transition: 'transform 0.2s', cursor: 'default' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
                     
-                    <span style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: s.level === 'BÃ¡sico' ? '#dcfce7' : s.level === 'IntermediÃ¡rio' ? '#fef08a' : '#fecaca', color: s.level === 'BÃ¡sico' ? '#166534' : s.level === 'IntermediÃ¡rio' ? '#854d0e' : '#991b1b', padding: '6px 14px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '900', letterSpacing: '0.5px' }}>
+                    <span style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: s.level === 'Básico' ? '#dcfce7' : s.level === 'Intermediário' ? '#fef08a' : '#fecaca', color: s.level === 'Básico' ? '#166534' : s.level === 'Intermediário' ? '#854d0e' : '#991b1b', padding: '6px 14px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '900', letterSpacing: '0.5px' }}>
                       {s.level.toUpperCase()}
                     </span>
                     
@@ -1298,7 +1323,7 @@ export default function TeacherDashboard() {
                     
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <button onClick={() => setTestingScenario(s)} style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: '#a855f7', color: 'white', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s', boxShadow: '0 4px 12px rgba(168, 85, 247, 0.3)' }}>
-                        â–¶ Testar CenÃ¡rio
+                        ▶ Testar Cenário
                       </button>
                       <button style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: '#f3e8ff', color: '#9333ea', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s' }}>
                         Editar
@@ -1313,8 +1338,8 @@ export default function TeacherDashboard() {
                 {scenarios.length === 0 && !showAddScenario && (
                   <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '5rem 2rem', background: 'rgba(255,255,255,0.5)', borderRadius: '24px', border: '2px dashed #cbd5e1' }}>
                     <Bot size={48} color="#cbd5e1" style={{ marginBottom: '1rem' }} />
-                    <h3 style={{ color: '#64748b', margin: '0 0 0.5rem 0' }}>Seu laboratÃ³rio estÃ¡ vazio</h3>
-                    <p style={{ color: '#94a3b8', margin: 0 }}>Crie seu primeiro cenÃ¡rio de conversaÃ§Ã£o para comeÃ§ar a mÃ¡gica!</p>
+                    <h3 style={{ color: '#64748b', margin: '0 0 0.5rem 0' }}>Seu laboratório está vazio</h3>
+                    <p style={{ color: '#94a3b8', margin: 0 }}>Crie seu primeiro cenário de conversação para começar a mágica!</p>
                   </div>
                 )}
               </div>
