@@ -1195,10 +1195,8 @@ export default function TeacherDashboard() {
 
             </motion.div>
 
-            </AnimatePresence>
-        </div>
-        {activeTab === "fluency-ia" && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', paddingBottom: '2rem' }}>
+              {activeTab === "fluency-ia" && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', paddingBottom: '2rem' }}>
               <div style={{ background: 'linear-gradient(135deg, #f3e8ff 0%, #ffffff 100%)', padding: '2rem', borderRadius: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 10px 25px -5px rgba(168, 85, 247, 0.1)', border: '1px solid #e9d5ff' }}>
                 <div>
                   <h2 style={{ color: '#7e22ce', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.8rem', margin: '0 0 8px 0' }}>
@@ -1277,6 +1275,9 @@ export default function TeacherDashboard() {
                     </div>
                     
                     <div style={{ display: 'flex', gap: '10px' }}>
+                      <button onClick={() => alert('Em breve! O próximo passo é construir a interface de Chat/Áudio para testarmos os cenários.')} style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: '#a855f7', color: 'white', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s', boxShadow: '0 4px 12px rgba(168, 85, 247, 0.3)' }}>
+                        ▶ Testar Cenário
+                      </button>
                       <button style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: '#f3e8ff', color: '#9333ea', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s' }}>
                         Editar
                       </button>
@@ -1296,7 +1297,9 @@ export default function TeacherDashboard() {
                 )}
               </div>
             </div>
-          )}
+            )}
+          </AnimatePresence>
+        </div>
       </main>
     </div>
   );
