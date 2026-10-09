@@ -8,6 +8,7 @@ import { collection, addDoc, getDocs, onSnapshot, query, orderBy, deleteDoc, doc
 import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { db, secondaryAuth, auth } from "@/lib/firebase";
 import { Calendar, momentLocalizer } from 'react-big-calendar';
+import FluencyRunner from '@/components/FluencyRunner';
 import moment from 'moment';
 import 'moment/locale/pt-br';
 import { motion, AnimatePresence } from "framer-motion";
@@ -42,6 +43,7 @@ export default function TeacherDashboard() {
   // Fluency.IA
   const [scenarios, setScenarios] = useState<any[]>([]);
   const [showAddScenario, setShowAddScenario] = useState(false);
+  const [testingScenario, setTestingScenario] = useState<any>(null);
   const [newScenario, setNewScenario] = useState({ title: '', level: 'Básico', description: '', initialMessage: '', systemPrompt: '' });
   
   const [students, setStudents] = useState<any[]>([]);
@@ -1275,7 +1277,7 @@ export default function TeacherDashboard() {
                     </div>
                     
                     <div style={{ display: 'flex', gap: '10px' }}>
-                      <button onClick={() => alert('Em breve! O próximo passo é construir a interface de Chat/Áudio para testarmos os cenários.')} style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: '#a855f7', color: 'white', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s', boxShadow: '0 4px 12px rgba(168, 85, 247, 0.3)' }}>
+                      <button onClick={() => setTestingScenario(s)} style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: '#a855f7', color: 'white', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s', boxShadow: '0 4px 12px rgba(168, 85, 247, 0.3)' }}>
                         ▶ Testar Cenário
                       </button>
                       <button style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: '#f3e8ff', color: '#9333ea', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s' }}>
@@ -1301,6 +1303,15 @@ export default function TeacherDashboard() {
           </AnimatePresence>
         </div>
       </main>
+      
+      <AnimatePresence>
+        {testingScenario && (
+          <FluencyRunner 
+            scenario={testingScenario} 
+            onClose={() => setTestingScenario(null)} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
