@@ -1,11 +1,13 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Mic, X, Bot, User, Loader2, Play } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mic, X, Bot, User, Loader2, Play, CheckCircle } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 export default function FluencyRunner({ scenario, onClose }: any) {
   const [messages, setMessages] = useState<any[]>([]);
   const [loadingText, setLoadingText] = useState("");
+  const [feedback, setFeedback] = useState<string | null>(null);
   
   // Audio state
   const [isRecording, setIsRecording] = useState(false);
@@ -21,7 +23,6 @@ export default function FluencyRunner({ scenario, onClose }: any) {
         { role: 'system', content: scenario.systemPrompt },
         { role: 'assistant', content: scenario.initialMessage }
       ]);
-      // Auto-play the first message
       playTTS(scenario.initialMessage, 1);
     }
   }, [scenario]);
@@ -100,7 +101,6 @@ export default function FluencyRunner({ scenario, onClose }: any) {
 
       setMessages([...newMessages, chatData]);
       
-      // Generate TTS for the AI's reply
       await playTTS(chatData.content, newMessages.length);
       
     } catch (err: any) {
@@ -117,7 +117,7 @@ export default function FluencyRunner({ scenario, onClose }: any) {
       const ttsRes = await fetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, voice: 'onyx' }) // onyx is a good male voice, alloy is neutral
+        body: JSON.stringify({ text, voice: 'onyx' })
       });
       
       if (!ttsRes.ok) throw new Error("Erro no TTS");
@@ -130,6 +130,24 @@ export default function FluencyRunner({ scenario, onClose }: any) {
       audio.play();
     } catch (err: any) {
       console.error("Erro de Audio TTS:", err);
+    } finally {
+      setLoadingText("");
+    }
+  };
+
+  const finishAndGetFeedback = async () => {
+    setLoadingText("Professor IA está analisando sua conversa...");
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setFeedback(data.feedback);
+    } catch (err: any) {
+      alert("Erro ao gerar feedback: " + err.message);
     } finally {
       setLoadingText("");
     }
@@ -158,81 +176,120 @@ export default function FluencyRunner({ scenario, onClose }: any) {
           </button>
         </div>
 
-        {/* Chat Area */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-            <span style={{ background: '#e2e8f0', padding: '6px 14px', borderRadius: '20px', fontSize: '0.8rem', color: '#475569', fontWeight: 'bold' }}>
-              Modo Imersivo Ativado - Apenas Áudio
-            </span>
-          </div>
+        {/* Chat Area or Feedback Area */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
           
-          {messages.filter(m => m.role !== 'system').map((msg, i) => {
-            const actualIndex = messages.findIndex(x => x === msg);
-            return (
-              <div key={i} style={{ display: 'flex', flexDirection: msg.role === 'user' ? 'row-reverse' : 'row', gap: '1rem', alignItems: 'flex-end' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: msg.role === 'user' ? '#3b82f6' : '#a855f7', color: 'white', flexShrink: 0, boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-                  {msg.role === 'user' ? <User size={20} /> : <Bot size={20} />}
+          <AnimatePresence>
+            {feedback && (
+              <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} style={{ position: 'absolute', top: 0, left: 0, right: 0, minHeight: '100%', background: 'white', zIndex: 20, padding: '2rem', overflowY: 'auto' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '2rem', borderBottom: '2px solid #f1f5f9', paddingBottom: '1rem' }}>
+                  <div style={{ background: '#10b981', padding: '12px', borderRadius: '50%', color: 'white' }}>
+                    <CheckCircle size={32} />
+                  </div>
+                  <div>
+                    <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.8rem' }}>Feedback do Professor IA</h2>
+                    <p style={{ margin: 0, color: '#64748b' }}>Avaliação completa da sua performance nesta missão.</p>
+                  </div>
                 </div>
-                <div style={{ background: msg.role === 'user' ? '#eff6ff' : 'white', border: msg.role === 'user' ? '1px solid #bfdbfe' : '1px solid #e2e8f0', padding: '1rem 1.2rem', borderRadius: msg.role === 'user' ? '20px 20px 4px 20px' : '20px 20px 20px 4px', maxWidth: '80%', fontSize: '1.05rem', color: '#1e293b', lineHeight: '1.5', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
-                  {msg.content}
-                  
-                  {msg.role === 'assistant' && audioUrls[actualIndex] && (
-                    <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #f1f5f9' }}>
-                      <button onClick={() => new Audio(audioUrls[actualIndex]).play()} style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#f3e8ff', color: '#9333ea', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer' }}>
-                        <Play size={14} /> Ouvir novamente
-                      </button>
+                
+                <div className="markdown-body" style={{ color: '#334155', lineHeight: '1.7', fontSize: '1.05rem' }}>
+                  <ReactMarkdown>{feedback}</ReactMarkdown>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {!feedback && (
+            <>
+              <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+                <span style={{ background: '#e2e8f0', padding: '6px 14px', borderRadius: '20px', fontSize: '0.8rem', color: '#475569', fontWeight: 'bold' }}>
+                  Modo Imersivo Ativado - Apenas Áudio
+                </span>
+              </div>
+              
+              {messages.filter(m => m.role !== 'system').map((msg, i) => {
+                const actualIndex = messages.findIndex(x => x === msg);
+                return (
+                  <div key={i} style={{ display: 'flex', flexDirection: msg.role === 'user' ? 'row-reverse' : 'row', gap: '1rem', alignItems: 'flex-end' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: msg.role === 'user' ? '#3b82f6' : '#a855f7', color: 'white', flexShrink: 0, boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+                      {msg.role === 'user' ? <User size={20} /> : <Bot size={20} />}
                     </div>
-                  )}
+                    <div style={{ background: msg.role === 'user' ? '#eff6ff' : 'white', border: msg.role === 'user' ? '1px solid #bfdbfe' : '1px solid #e2e8f0', padding: '1rem 1.2rem', borderRadius: msg.role === 'user' ? '20px 20px 4px 20px' : '20px 20px 20px 4px', maxWidth: '80%', fontSize: '1.05rem', color: '#1e293b', lineHeight: '1.5', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
+                      {msg.content}
+                      
+                      {msg.role === 'assistant' && audioUrls[actualIndex] && (
+                        <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #f1f5f9' }}>
+                          <button onClick={() => new Audio(audioUrls[actualIndex]).play()} style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#f3e8ff', color: '#9333ea', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer' }}>
+                            <Play size={14} /> Ouvir novamente
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+              
+              {loadingText && (
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#a855f7', color: 'white', flexShrink: 0 }}>
+                    <Bot size={20} />
+                  </div>
+                  <div style={{ background: 'white', border: '1px solid #e2e8f0', padding: '1rem 1.2rem', borderRadius: '20px 20px 20px 4px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Loader2 size={18} color="#a855f7" className="animate-spin" />
+                    <span style={{ color: '#94a3b8', fontSize: '0.9rem', fontWeight: 'bold' }}>{loadingText}</span>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-          
-          {loadingText && (
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#a855f7', color: 'white', flexShrink: 0 }}>
-                <Bot size={20} />
-              </div>
-              <div style={{ background: 'white', border: '1px solid #e2e8f0', padding: '1rem 1.2rem', borderRadius: '20px 20px 20px 4px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Loader2 size={18} color="#a855f7" className="animate-spin" />
-                <span style={{ color: '#94a3b8', fontSize: '0.9rem', fontWeight: 'bold' }}>{loadingText}</span>
-              </div>
-            </div>
+              )}
+              <div ref={messagesEndRef} />
+            </>
           )}
-          <div ref={messagesEndRef} />
         </div>
 
-        {/* Big Walkie-Talkie Button Area */}
-        <div style={{ padding: '2rem', background: 'white', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        {/* Input/Action Area */}
+        <div style={{ padding: '2rem', background: 'white', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
           
-          <button 
-            onMouseDown={startRecording} 
-            onMouseUp={stopRecording}
-            onMouseLeave={stopRecording}
-            onTouchStart={startRecording}
-            onTouchEnd={stopRecording}
-            disabled={!!loadingText}
-            style={{ 
-              width: isRecording ? '140px' : '120px', 
-              height: isRecording ? '140px' : '120px', 
-              borderRadius: '50%', 
-              border: 'none', 
-              background: isRecording ? '#ef4444' : (loadingText ? '#cbd5e1' : '#a855f7'), 
-              color: 'white', 
-              display: 'flex', 
-              flexDirection: 'column',
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              cursor: loadingText ? 'not-allowed' : 'pointer', 
-              transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)', 
-              boxShadow: isRecording ? '0 0 30px rgba(239, 68, 68, 0.6)' : (loadingText ? 'none' : '0 10px 25px rgba(168, 85, 247, 0.4)') 
-            }}
-          >
-            <Mic size={isRecording ? 48 : 36} style={{ transition: 'all 0.2s' }} />
-            <span style={{ marginTop: '8px', fontSize: '0.8rem', fontWeight: 'bold', opacity: 0.9 }}>
-              {isRecording ? "GRAVANDO..." : (loadingText ? "AGUARDE" : "SEGURE E FALE")}
-            </span>
-          </button>
+          {!feedback ? (
+            <>
+              <button 
+                onMouseDown={startRecording} 
+                onMouseUp={stopRecording}
+                onMouseLeave={stopRecording}
+                onTouchStart={startRecording}
+                onTouchEnd={stopRecording}
+                disabled={!!loadingText}
+                style={{ 
+                  width: isRecording ? '140px' : '120px', 
+                  height: isRecording ? '140px' : '120px', 
+                  borderRadius: '50%', 
+                  border: 'none', 
+                  background: isRecording ? '#ef4444' : (loadingText ? '#cbd5e1' : '#a855f7'), 
+                  color: 'white', 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  cursor: loadingText ? 'not-allowed' : 'pointer', 
+                  transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)', 
+                  boxShadow: isRecording ? '0 0 30px rgba(239, 68, 68, 0.6)' : (loadingText ? 'none' : '0 10px 25px rgba(168, 85, 247, 0.4)') 
+                }}
+              >
+                <Mic size={isRecording ? 48 : 36} style={{ transition: 'all 0.2s' }} />
+                <span style={{ marginTop: '8px', fontSize: '0.8rem', fontWeight: 'bold', opacity: 0.9 }}>
+                  {isRecording ? "GRAVANDO..." : (loadingText ? "AGUARDE" : "SEGURE E FALE")}
+                </span>
+              </button>
+
+              {messages.length > 3 && (
+                <button onClick={finishAndGetFeedback} style={{ padding: '12px 24px', background: '#f8fafc', border: '2px solid #e2e8f0', color: '#64748b', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => {e.currentTarget.style.borderColor = '#10b981'; e.currentTarget.style.color = '#10b981'}} onMouseLeave={e => {e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'}}>
+                  ✓ Encerrar Conversa e Ver Feedback
+                </button>
+              )}
+            </>
+          ) : (
+            <button onClick={onClose} style={{ width: '100%', padding: '16px', background: '#10b981', color: 'white', borderRadius: '16px', border: 'none', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }}>
+              Voltar ao Laboratório
+            </button>
+          )}
           
         </div>
       </motion.div>
