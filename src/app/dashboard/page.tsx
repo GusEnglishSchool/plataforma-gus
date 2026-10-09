@@ -84,13 +84,14 @@ export default function StudentDashboard() {
   }, []);
 
   useEffect(() => {
-    const qScenarios = query(collection(db, "scenarios"));
-    const unsub = onSnapshot(qScenarios, (snap) => {
-      const data: any[] = [];
-      snap.forEach(d => data.push({ id: d.id, ...d.data() }));
-      setScenarios(data);
-    });
-    return () => unsub();
+    fetch('/api/scenarios')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setScenarios(data);
+        }
+      })
+      .catch(console.error);
   }, []);
 
 
