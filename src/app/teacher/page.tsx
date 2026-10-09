@@ -252,12 +252,32 @@ export default function TeacherDashboard() {
     setLoading(false);
   };
 
-  const handleDeleteStudent = (studentId: string, docId: string) => {
+  const handleDeleteStudent = (uid: string, docId: string) => {
     requestConfirm("Remover Aluno", "Tem certeza que deseja remover este aluno? Ele perderá acesso.", async () => {
-      await deleteDoc(doc(db, "users", docId));
-      setSelectedStudent(null);
-      setConfirmState({ ...confirmState, isOpen: false });
-      toast.success("Aluno removido.");
+      try {
+        // Primeiro deleta do Authentication via API
+        const response = await fetch('/api/delete-user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ uid }),
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Erro ao deletar Auth:", errorData);
+        }
+
+        // Depois deleta do Firestore
+        await deleteDoc(doc(db, "users", docId));
+        setSelectedStudent(null);
+        setConfirmState({ ...confirmState, isOpen: false });
+        toast.success("Aluno removido com sucesso!");
+      } catch (error) {
+        console.error(error);
+        toast.error("Erro ao remover o aluno.");
+      }
     });
   };
 
