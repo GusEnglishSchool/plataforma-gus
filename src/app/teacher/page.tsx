@@ -13,6 +13,7 @@ import 'moment/locale/pt-br';
 import { motion, AnimatePresence } from "framer-motion";
 import toast from 'react-hot-toast';
 import VideoRoom from '@/components/VideoRoom';
+import { Users, Calendar as CalendarIcon, Video, MessageCircle, Bot } from 'lucide-react';
 
 moment.locale('pt-br');
 const localizer = momentLocalizer(moment);
@@ -470,18 +471,30 @@ export default function TeacherDashboard() {
           <h2>Teacher Gus</h2>
         </div>
         <nav className="sidebar-nav">
-          <button className={`nav-item ${activeTab === "alunos" ? "active" : ""}`} onClick={() => {setActiveTab("alunos"); setSelectedStudent(null); setIsSidebarOpen(false);}}>Meus Alunos</button>
-          <button className={`nav-item ${activeTab === "calendario" ? "active" : ""}`} onClick={() => {setActiveTab("calendario"); setIsSidebarOpen(false);}}>Calendário</button>
+          <button className={`nav-item ${activeTab === "alunos" ? "active" : ""}`} onClick={() => {setActiveTab("alunos"); setSelectedStudent(null); setIsSidebarOpen(false);}} style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+            <Users size={20} />
+            Meus Alunos
+          </button>
+          <button className={`nav-item ${activeTab === "calendario" ? "active" : ""}`} onClick={() => {setActiveTab("calendario"); setIsSidebarOpen(false);}} style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+            <CalendarIcon size={20} />
+            Calendário
+          </button>
           <button className={`nav-item ${activeTab === "sala-global" ? "active" : ""}`} onClick={async () => {
             setActiveTab("sala-global");
             setIsSidebarOpen(false);
             await setDoc(doc(db, "settings", "global_room"), { isOpen: true }, { merge: true });
-          }} style={{ color: 'var(--accent-gold)' }}>
-            🎥 Sala Global (Live)
+          }} style={{ color: 'var(--accent-gold)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Video size={20} />
+            Sala Global (Live)
           </button>
-          <button className={`nav-item ${activeTab === "chat-global" ? "active" : ""}`} onClick={() => {setActiveTab("chat-global"); setIsSidebarOpen(false);}} style={{position: 'relative'}}>
+          <button className={`nav-item ${activeTab === "chat-global" ? "active" : ""}`} onClick={() => {setActiveTab("chat-global"); setIsSidebarOpen(false);}} style={{position: 'relative', display: 'flex', alignItems: 'center', gap: '10px'}}>
+            <MessageCircle size={20} />
             Chat da Turma
             {hasUnreadGlobal && activeTab !== "chat-global" && <span style={{position:'absolute', right:'10px', top:'50%', transform:'translateY(-50%)', width:'10px', height:'10px', borderRadius:'50%', background:'red'}}></span>}
+          </button>
+          <button className={`nav-item ${activeTab === "fluency-ia" ? "active" : ""}`} onClick={() => {setActiveTab("fluency-ia"); setIsSidebarOpen(false);}} style={{display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px'}}>
+            <Bot size={20} color="#a855f7" />
+            <span style={{color: '#a855f7', fontWeight: 'bold'}}>Fluency.IA</span>
           </button>
         </nav>
         <div className="sidebar-footer">
@@ -1116,6 +1129,24 @@ export default function TeacherDashboard() {
             </motion.div>
           </AnimatePresence>
         </div>
+        {activeTab === "fluency-ia" && (
+          <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
+            <Bot size={64} color="#a855f7" style={{ marginBottom: '1rem' }} />
+            <h2 style={{ color: '#a855f7', marginBottom: '1rem' }}>Fluency.IA (Em Desenvolvimento)</h2>
+            <p style={{ color: 'var(--text-gray)', maxWidth: '600px', margin: '0 auto', lineHeight: '1.6' }}>
+              Este é o painel administrativo da Inteligência Artificial. Aqui você poderá configurar o "Teacher AI" 
+              para conversação em tempo real, monitorar os relatórios de pronúncia dos alunos e ajustar o 
+              comportamento da inteligência artificial.
+            </p>
+            <div style={{ marginTop: '3rem', padding: '2rem', background: 'rgba(168, 85, 247, 0.1)', borderRadius: '16px', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+              <h3 style={{ color: '#a855f7', marginBottom: '1rem' }}>Laboratório de Prompts</h3>
+              <p style={{ color: 'var(--text-gray)' }}>
+                Em breve, você poderá criar simuladores de situações reais (como "Imigração", "Entrevista", "Restaurante") 
+                para os alunos treinarem áudio.
+              </p>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
