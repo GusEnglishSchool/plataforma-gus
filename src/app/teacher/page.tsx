@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -722,11 +722,16 @@ export default function TeacherDashboard() {
                         <p style={{margin:0, color:'#64748b'}}>{selectedStudent.email}</p>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <button onClick={() => toggleFluencyAccess(selectedStudent)} style={{ color: selectedStudent.hasFluencyAccess ? '#10b981' : '#64748b', border: `1px solid ${selectedStudent.hasFluencyAccess ? '#10b981' : '#cbd5e1'}`, padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', background: selectedStudent.hasFluencyAccess ? '#ecfdf5' : 'transparent', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <Bot size={16} /> {selectedStudent.hasFluencyAccess ? 'Fluency.IA Liberado' : 'Fluency.IA Bloqueado'}
-                      </button>
-                      <button onClick={() => handleDeleteStudent(selectedStudent.uid, selectedStudent.id)} style={{color:'red', border:'1px solid red', padding:'8px 16px', borderRadius:'8px', cursor: 'pointer', background: 'transparent'}}>Remover Aluno</button>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
+                      <div style={{ background: '#fef3c7', color: '#b45309', padding: '6px 12px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                        Custo IA Acumulado: R$ {(selectedStudent.totalFluencyCost || 0).toFixed(2).replace('.', ',')}
+                      </div>
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button onClick={() => toggleFluencyAccess(selectedStudent)} style={{ color: selectedStudent.hasFluencyAccess ? '#10b981' : '#64748b', border: `1px solid ${selectedStudent.hasFluencyAccess ? '#10b981' : '#cbd5e1'}`, padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', background: selectedStudent.hasFluencyAccess ? '#ecfdf5' : 'transparent', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <Bot size={16} /> {selectedStudent.hasFluencyAccess ? 'Fluency.IA Liberado' : 'Fluency.IA Bloqueado'}
+                        </button>
+                        <button onClick={() => handleDeleteStudent(selectedStudent.uid, selectedStudent.id)} style={{color:'red', border:'1px solid red', padding:'8px 16px', borderRadius:'8px', cursor: 'pointer', background: 'transparent'}}>Remover Aluno</button>
+                      </div>
                     </div>
                   </div>
 

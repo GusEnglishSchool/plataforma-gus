@@ -3,8 +3,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, X, Bot, User, Loader2, Play, CheckCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { doc, updateDoc, increment } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
-export default function FluencyRunner({ scenario, onClose }: any) {
+export default function FluencyRunner({ scenario, onClose, studentDocId }: any) {
   const [messages, setMessages] = useState<any[]>([]);
   const [loadingText, setLoadingText] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -103,6 +105,16 @@ export default function FluencyRunner({ scenario, onClose }: any) {
       
       await playTTS(chatData.content, newMessages.length);
       
+      // TAXÍMETRO: Cada interação (ouvir + pensar + falar) custa 5 centavos fictícios (R$ 0.05) para controle de limites.
+      if (studentDocId) {
+        try {
+          await updateDoc(doc(db, "users", studentDocId), {
+            totalFluencyCost: increment(0.05)
+          });
+        } catch (e) {
+          console.error("Erro ao computar custo:", e);
+        }
+      }
     } catch (err: any) {
       console.error(err);
       alert("Erro na comunicação: " + err.message);

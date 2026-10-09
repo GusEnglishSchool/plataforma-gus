@@ -13,6 +13,7 @@ import 'moment/locale/pt-br';
 import { motion, AnimatePresence } from "framer-motion";
 import toast from 'react-hot-toast';
 import VideoRoom from '@/components/VideoRoom';
+import FluencyRunner from '@/components/FluencyRunner';
 import { Home, Calendar as CalendarIcon, BookOpen, Star, MessageSquare, Video, Users, Radio, Bot } from 'lucide-react';
 
 moment.locale('pt-br');
@@ -30,6 +31,8 @@ export default function StudentDashboard() {
   
   const [tasks, setTasks] = useState<any[]>([]);
   const [materials, setMaterials] = useState<any[]>([]);
+  const [scenarios, setScenarios] = useState<any[]>([]);
+  const [activeScenario, setActiveScenario] = useState<any>(null);
   const [events, setEvents] = useState<any[]>([]);
   const [privateMessages, setPrivateMessages] = useState<any[]>([]);
   const [globalMessages, setGlobalMessages] = useState<any[]>([]);
@@ -79,6 +82,18 @@ export default function StudentDashboard() {
 
      return () => { unsubSettings(); unsubAllUsers(); };
   }, []);
+
+  useEffect(() => {
+    if (!teacherUid) return;
+    const qScenarios = query(collection(db, "scenarios"), where("teacherId", "==", teacherUid));
+    const unsub = onSnapshot(qScenarios, (snap) => {
+      const data: any[] = [];
+      snap.forEach(d => data.push({ id: d.id, ...d.data() }));
+      setScenarios(data);
+    });
+    return () => unsub();
+  }, [teacherUid]);
+
 
   // Global Listeners
   useEffect(() => {
@@ -345,6 +360,12 @@ export default function StudentDashboard() {
               <Radio size={20} /> Live da Turma
             </button>
           )}
+          
+          {userProfile?.hasFluencyAccess && (
+            <button className={`nav-item ${activeTab === "fluency" ? "active" : ""}`} onClick={() => {setActiveTab("fluency"); setIsSidebarOpen(false);}} style={{ color: '#a855f7', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Bot size={20} /> Fluency.IA
+            </button>
+          )}
         </nav>
         <div className="sidebar-footer">
           <button onClick={() => {signOut(auth); router.push("/");}} className="btn-secondary" style={{ width: '100%', cursor: 'pointer' }}>Sair</button>
@@ -363,6 +384,7 @@ export default function StudentDashboard() {
             {activeTab === "chat-global" && "Interação da Turma"}
             {activeTab === "aula-particular" && "Aula Ao Vivo"}
             {activeTab === "sala-global" && "Live da Turma"}
+            {activeTab === "fluency" && "Fluency.IA"}
           </h1>
           </div>
           <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
@@ -731,6 +753,54 @@ export default function StudentDashboard() {
                     isModerator={false} 
                     onClose={() => setActiveTab("inicio")} 
                   />
+                </div>
+              )}
+
+              {activeTab === "fluency" && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  <div style={{ background: 'linear-gradient(135deg, #2e0249 0%, #5b21b6 100%)', borderRadius: '16px', padding: '2rem', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <h2 style={{ fontSize: '2rem', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <Bot size={32} color="#a855f7" /> Fluency.IA
+                      </h2>
+                      <p style={{ margin: 0, fontSize: '1.1rem', opacity: 0.9 }}>Escolha um cenário, coloque seus fones e pratique inglês falando com a IA.</p>
+                    </div>
+                  </div>
+
+                  <h3 style={{ margin: '1rem 0 0 0', color: 'var(--primary-blue)' }}>Cenários Disponíveis</h3>
+                  
+                  {scenarios.length === 0 ? (
+                    <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+                      <p style={{ color: '#64748b' }}>Seu professor ainda não criou cenários. Volte mais tarde!</p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                      {scenarios.map(scen => (
+                        <motion.div whileHover={{ y: -5 }} key={scen.id} className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                            <h3 style={{ margin: 0, color: '#1e293b' }}>{scen.title}</h3>
+                            <span style={{ fontSize: '0.75rem', background: '#f1f5f9', padding: '4px 8px', borderRadius: '4px', color: '#64748b', fontWeight: 'bold' }}>
+                              {scen.difficulty}
+                            </span>
+                          </div>
+                          <p style={{ fontSize: '0.9rem', color: '#64748b', margin: '0 0 1.5rem 0', flex: 1 }}>{scen.description}</p>
+                          <button onClick={() => setActiveScenario(scen)} style={{ width: '100%', padding: '12px', background: '#a855f7', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                            <Radio size={18} /> Iniciar Conversa
+                          </button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+
+                  <AnimatePresence>
+                    {activeScenario && (
+                      <FluencyRunner 
+                        scenario={activeScenario} 
+                        onClose={() => setActiveScenario(null)} 
+                        studentDocId={studentDocId}
+                      />
+                    )}
+                  </AnimatePresence>
                 </div>
               )}
 
