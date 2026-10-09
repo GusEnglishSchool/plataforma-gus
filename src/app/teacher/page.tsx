@@ -1195,7 +1195,9 @@ export default function TeacherDashboard() {
 
             </motion.div>
 
-          {activeTab === "fluency-ia" && (
+            </AnimatePresence>
+        </div>
+        {activeTab === "fluency-ia" && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', paddingBottom: '2rem' }}>
               <div style={{ background: 'linear-gradient(135deg, #f3e8ff 0%, #ffffff 100%)', padding: '2rem', borderRadius: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 10px 25px -5px rgba(168, 85, 247, 0.1)', border: '1px solid #e9d5ff' }}>
                 <div>
@@ -1295,8 +1297,6 @@ export default function TeacherDashboard() {
               </div>
             </div>
           )}
-
-        </div>
       </main>
     </div>
   );
