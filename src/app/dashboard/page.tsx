@@ -84,15 +84,14 @@ export default function StudentDashboard() {
   }, []);
 
   useEffect(() => {
-    if (!teacherUid) return;
-    const qScenarios = query(collection(db, "scenarios"), where("teacherId", "==", teacherUid));
+    const qScenarios = query(collection(db, "scenarios"));
     const unsub = onSnapshot(qScenarios, (snap) => {
       const data: any[] = [];
       snap.forEach(d => data.push({ id: d.id, ...d.data() }));
       setScenarios(data);
     });
     return () => unsub();
-  }, [teacherUid]);
+  }, []);
 
 
   // Global Listeners
@@ -760,7 +759,7 @@ export default function StudentDashboard() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                   <div style={{ background: 'linear-gradient(135deg, #2e0249 0%, #5b21b6 100%)', borderRadius: '16px', padding: '2rem', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <h2 style={{ fontSize: '2rem', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <h2 style={{ color: 'white', fontSize: '2rem', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <Bot size={32} color="#a855f7" /> Fluency.IA
                       </h2>
                       <p style={{ margin: 0, fontSize: '1.1rem', opacity: 0.9 }}>Escolha um cenário, coloque seus fones e pratique inglês falando com a IA.</p>
