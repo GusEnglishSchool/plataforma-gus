@@ -40,6 +40,8 @@ export default function FluencyRunner({ scenario, onClose, studentDocId }: any) 
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
+      const mimeType = mediaRecorder.mimeType;
+
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
@@ -47,8 +49,12 @@ export default function FluencyRunner({ scenario, onClose, studentDocId }: any) 
       };
 
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        await processVoiceInput(audioBlob);
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+        let ext = 'webm';
+        if (mimeType.includes('mp4')) ext = 'm4a';
+        else if (mimeType.includes('ogg')) ext = 'ogg';
+        else if (mimeType.includes('wav')) ext = 'wav';
+        await processVoiceInput(audioBlob, ext);
       };
 
       mediaRecorder.start();
@@ -66,11 +72,11 @@ export default function FluencyRunner({ scenario, onClose, studentDocId }: any) 
     }
   };
 
-  const processVoiceInput = async (audioBlob: Blob) => {
+  const processVoiceInput = async (audioBlob: Blob, ext: string = 'webm') => {
     setLoadingText("Ouvindo o que você disse...");
     try {
       const formData = new FormData();
-      formData.append('file', audioBlob, 'audio.webm');
+      formData.append('file', audioBlob, `audio.${ext}`);
       
       const whisperRes = await fetch('/api/whisper', {
         method: 'POST',

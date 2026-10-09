@@ -8,14 +8,14 @@ export async function POST(req: Request) {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' });
     
     const formData = await req.formData();
-    const file = formData.get('file') as Blob;
+    const file = formData.get('file') as File;
     
     if (!file) {
       return NextResponse.json({ error: "Nenhum arquivo recebido." }, { status: 400 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const fileObj = await toFile(buffer, 'audio.webm', { type: 'audio/webm' });
+    const fileObj = await toFile(buffer, file.name || 'audio.webm', { type: file.type || 'audio/webm' });
 
     const transcription = await openai.audio.transcriptions.create({
       file: fileObj,
