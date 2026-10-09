@@ -23,7 +23,7 @@ export async function GET() {
     const db = getFirestore();
     const snap = await db.collection("scenarios").get();
     const scenarios: any[] = [];
-    snap.forEach(doc => {
+    snap.forEach((doc: any) => {
       scenarios.push({ id: doc.id, ...doc.data() });
     });
     return NextResponse.json(scenarios);
