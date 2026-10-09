@@ -21,7 +21,7 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const db = getFirestore();
-    const snap = await db.collection("scenarios").get();
+    const snap = await db.collection("ai_scenarios").get();
     const scenarios: any[] = [];
     snap.forEach((doc: any) => {
       scenarios.push({ id: doc.id, ...doc.data() });
