@@ -39,6 +39,11 @@ export default function TeacherDashboard() {
   const [activeTab, setActiveTab] = useState("alunos");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
+  // Fluency.IA
+  const [scenarios, setScenarios] = useState<any[]>([]);
+  const [showAddScenario, setShowAddScenario] = useState(false);
+  const [newScenario, setNewScenario] = useState({ title: '', level: 'Básico', description: '', initialMessage: '', systemPrompt: '' });
+  
   const [students, setStudents] = useState<any[]>([]);
   const [materials, setMaterials] = useState<any[]>([]);
   const [tasks, setTasks] = useState<any[]>([]);
@@ -225,6 +230,42 @@ export default function TeacherDashboard() {
   useEffect(() => {
     if (activeTab === "chat-global") setHasUnreadGlobal(false);
   }, [activeTab]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "ai_scenarios"), (snap) => {
+      setScenarios(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return () => unsub();
+  }, []);
+
+  const handleCreateScenario = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await addDoc(collection(db, "ai_scenarios"), {
+        ...newScenario,
+        createdAt: new Date().toISOString()
+      });
+      toast.success("Cenário criado com sucesso!");
+      setShowAddScenario(false);
+      setNewScenario({ title: '', level: 'Básico', description: '', initialMessage: '', systemPrompt: '' });
+    } catch (err) {
+      toast.error("Erro ao criar cenário");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteScenario = async (id: string) => {
+    requestConfirm(
+      "Excluir Cenário",
+      "Tem certeza que deseja excluir este cenário? Os alunos não poderão mais acessá-lo.",
+      async () => {
+        await deleteDoc(doc(db, "ai_scenarios", id));
+        toast.success("Cenário excluído!");
+      }
+    );
+  };
 
   const requestConfirm = (title: string, message: string, action: () => void) => {
     setConfirmState({ isOpen: true, title, message, action });
@@ -1156,20 +1197,78 @@ export default function TeacherDashboard() {
           </AnimatePresence>
         </div>
         {activeTab === "fluency-ia" && (
-          <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
-            <Bot size={64} color="#a855f7" style={{ marginBottom: '1rem' }} />
-            <h2 style={{ color: '#a855f7', marginBottom: '1rem' }}>Fluency.IA (Em Desenvolvimento)</h2>
-            <p style={{ color: 'var(--text-gray)', maxWidth: '600px', margin: '0 auto', lineHeight: '1.6' }}>
-              Este é o painel administrativo da Inteligência Artificial. Aqui você poderá configurar o "Teacher AI" 
-              para conversação em tempo real, monitorar os relatórios de pronúncia dos alunos e ajustar o 
-              comportamento da inteligência artificial.
-            </p>
-            <div style={{ marginTop: '3rem', padding: '2rem', background: 'rgba(168, 85, 247, 0.1)', borderRadius: '16px', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
-              <h3 style={{ color: '#a855f7', marginBottom: '1rem' }}>Laboratório de Prompts</h3>
-              <p style={{ color: 'var(--text-gray)' }}>
-                Em breve, você poderá criar simuladores de situações reais (como "Imigração", "Entrevista", "Restaurante") 
-                para os alunos treinarem áudio.
-              </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h2 style={{ color: '#a855f7', display: 'flex', alignItems: 'center', gap: '10px' }}><Bot size={28} /> Laboratório de Cenários (Fluency.IA)</h2>
+                <p style={{ color: 'var(--text-gray)' }}>Crie simulações de conversação em inglês para seus alunos.</p>
+              </div>
+              <button onClick={() => setShowAddScenario(!showAddScenario)} style={{ padding: '10px 20px', borderRadius: '8px', background: '#a855f7', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
+                {showAddScenario ? "Cancelar" : "+ Novo Cenário"}
+              </button>
+            </div>
+
+            {showAddScenario && (
+              <motion.form initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} onSubmit={handleCreateScenario} style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', border: '1px solid #f3e8ff' }}>
+                <h4 style={{ color: '#a855f7', marginTop: 0, marginBottom: '1.5rem' }}>Criar Novo Cenário</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Título do Cenário</label>
+                    <input type="text" value={newScenario.title} onChange={e => setNewScenario({...newScenario, title: e.target.value})} placeholder="Ex: Imigração no JFK" required style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Nível</label>
+                    <select value={newScenario.level} onChange={e => setNewScenario({...newScenario, level: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white' }}>
+                      <option value="Básico">Básico</option>
+                      <option value="Intermediário">Intermediário</option>
+                      <option value="Avançado">Avançado</option>
+                    </select>
+                  </div>
+                </div>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Descrição para o Aluno</label>
+                  <input type="text" value={newScenario.description} onChange={e => setNewScenario({...newScenario, description: e.target.value})} placeholder="Ex: Treine como responder ao oficial de fronteira." required style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
+                </div>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Primeira Fala da IA (Em Inglês)</label>
+                  <input type="text" value={newScenario.initialMessage} onChange={e => setNewScenario({...newScenario, initialMessage: e.target.value})} placeholder="Ex: Next in line! Passport please." required style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
+                </div>
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Comportamento Secreto (System Prompt)</label>
+                  <textarea value={newScenario.systemPrompt} onChange={e => setNewScenario({...newScenario, systemPrompt: e.target.value})} placeholder="Ex: Você é um oficial de imigração sério. Faça perguntas curtas e espere a resposta." required style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', minHeight: '100px' }} />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <button type="submit" disabled={loading} style={{ padding: '12px 24px', borderRadius: '8px', background: '#a855f7', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
+                    {loading ? "Salvando..." : "Salvar Cenário"}
+                  </button>
+                </div>
+              </motion.form>
+            )}
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+              {scenarios.map(s => (
+                <div key={s.id} style={{ background: 'white', padding: '1.5rem', borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', position: 'relative' }}>
+                  <span style={{ position: 'absolute', top: '1rem', right: '1rem', background: s.level === 'Básico' ? '#dcfce7' : s.level === 'Intermediário' ? '#fef08a' : '#fecaca', color: s.level === 'Básico' ? '#166534' : s.level === 'Intermediário' ? '#854d0e' : '#991b1b', padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                    {s.level}
+                  </span>
+                  <h3 style={{ marginTop: 0, marginBottom: '0.5rem', color: 'var(--primary-blue)', paddingRight: '70px' }}>{s.title}</h3>
+                  <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' }}>{s.description}</p>
+                  
+                  <div style={{ background: '#f8fafc', padding: '10px', borderRadius: '8px', marginBottom: '1rem', border: '1px solid #e2e8f0' }}>
+                    <p style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#94a3b8', margin: '0 0 5px 0' }}>FALA INICIAL:</p>
+                    <p style={{ margin: 0, fontSize: '0.875rem', color: '#334155', fontStyle: 'italic' }}>"{s.initialMessage}"</p>
+                  </div>
+                  
+                  <button onClick={() => handleDeleteScenario(s.id)} style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #fecaca', background: '#fef2f2', color: '#ef4444', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s' }}>
+                    Excluir
+                  </button>
+                </div>
+              ))}
+              {scenarios.length === 0 && !showAddScenario && (
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
+                  Nenhum cenário criado ainda. Clique no botão acima para criar o primeiro!
+                </div>
+              )}
             </div>
           </div>
         )}
