@@ -43,8 +43,10 @@ export default function TeacherDashboard() {
   // Fluency.IA
   const [scenarios, setScenarios] = useState<any[]>([]);
   const [showAddScenario, setShowAddScenario] = useState(false);
+  const [editingScenarioId, setEditingScenarioId] = useState<string | null>(null);
   const [testingScenario, setTestingScenario] = useState<any>(null);
   const [newScenario, setNewScenario] = useState({ title: '', level: 'Básico', description: '', initialMessage: '', systemPrompt: '' });
+  const scenarioFormRef = useRef<HTMLDivElement>(null);
   
   const [students, setStudents] = useState<any[]>([]);
   const [materials, setMaterials] = useState<any[]>([]);
@@ -240,19 +242,52 @@ export default function TeacherDashboard() {
     return () => unsub();
   }, []);
 
-  const handleCreateScenario = async (e: React.FormEvent) => {
+  const handleStartEditScenario = (s: any) => {
+    setEditingScenarioId(s.id);
+    setNewScenario({
+      title: s.title || '',
+      level: s.level || 'Básico',
+      description: s.description || '',
+      initialMessage: s.initialMessage || '',
+      systemPrompt: s.systemPrompt || ''
+    });
+    setShowAddScenario(true);
+    setTimeout(() => {
+      scenarioFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  };
+
+  const handleCancelScenarioForm = () => {
+    setShowAddScenario(false);
+    setEditingScenarioId(null);
+    setNewScenario({ title: '', level: 'Básico', description: '', initialMessage: '', systemPrompt: '' });
+  };
+
+  const handleSaveScenario = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await addDoc(collection(db, "ai_scenarios"), {
-        ...newScenario,
-        createdAt: new Date().toISOString()
-      });
-      toast.success("Cenário criado com sucesso!");
-      setShowAddScenario(false);
-      setNewScenario({ title: '', level: 'Básico', description: '', initialMessage: '', systemPrompt: '' });
-    } catch (err) {
-      toast.error("Erro ao criar cenário");
+      if (editingScenarioId) {
+        await updateDoc(doc(db, "ai_scenarios", editingScenarioId), {
+          title: newScenario.title,
+          level: newScenario.level,
+          description: newScenario.description,
+          initialMessage: newScenario.initialMessage,
+          systemPrompt: newScenario.systemPrompt,
+          updatedAt: new Date().toISOString()
+        });
+        toast.success("Cenário atualizado com sucesso!");
+      } else {
+        await addDoc(collection(db, "ai_scenarios"), {
+          ...newScenario,
+          createdAt: new Date().toISOString()
+        });
+        toast.success("Cenário criado com sucesso!");
+      }
+      handleCancelScenarioForm();
+    } catch (err: any) {
+      console.error("Erro ao salvar cenário:", err);
+      toast.error(editingScenarioId ? "Erro ao atualizar cenário" : "Erro ao criar cenário");
     } finally {
       setLoading(false);
     }
@@ -264,6 +299,9 @@ export default function TeacherDashboard() {
       "Tem certeza que deseja excluir este cenário? Os alunos não poderão mais acessá-lo.",
       async () => {
         await deleteDoc(doc(db, "ai_scenarios", id));
+        if (editingScenarioId === id) {
+          handleCancelScenarioForm();
+        }
         toast.success("Cenário excluído!");
       }
     );
@@ -1227,58 +1265,68 @@ export default function TeacherDashboard() {
                   </h2>
                   <p style={{ color: '#6b7280', margin: 0, fontSize: '1.1rem' }}>Crie experiências imersivas de conversação para seus alunos com a Fluency.IA.</p>
                 </div>
-                <button onClick={() => setShowAddScenario(!showAddScenario)} style={{ padding: '14px 28px', borderRadius: '14px', background: showAddScenario ? '#ef4444' : '#9333ea', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem', boxShadow: showAddScenario ? '0 4px 12px rgba(239, 68, 68, 0.2)' : '0 4px 12px rgba(147, 51, 234, 0.2)', transition: 'all 0.3s' }}>
-                  {showAddScenario ? "Cancelar Criação" : "+ Novo Cenário Mágico"}
+                <button onClick={() => {
+                  if (showAddScenario) {
+                    handleCancelScenarioForm();
+                  } else {
+                    setEditingScenarioId(null);
+                    setNewScenario({ title: '', level: 'Básico', description: '', initialMessage: '', systemPrompt: '' });
+                    setShowAddScenario(true);
+                  }
+                }} style={{ padding: '14px 28px', borderRadius: '14px', background: showAddScenario ? '#ef4444' : '#9333ea', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem', boxShadow: showAddScenario ? '0 4px 12px rgba(239, 68, 68, 0.2)' : '0 4px 12px rgba(147, 51, 234, 0.2)', transition: 'all 0.3s' }}>
+                  {showAddScenario ? "Cancelar" : "+ Novo Cenário Mágico"}
                 </button>
               </div>
 
-              <AnimatePresence>
-                {showAddScenario && (
-                  <motion.form initial={{ height: 0, opacity: 0, scale: 0.95 }} animate={{ height: 'auto', opacity: 1, scale: 1 }} exit={{ height: 0, opacity: 0, scale: 0.95 }} transition={{ duration: 0.3 }} onSubmit={handleCreateScenario} style={{ background: 'white', padding: '2.5rem', borderRadius: '24px', boxShadow: '0 10px 40px -10px rgba(0,0,0,0.08)', border: '1px solid #f1f5f9' }}>
-                    <h3 style={{ color: '#334155', marginTop: 0, marginBottom: '2rem', fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ display: 'inline-block', width: '8px', height: '24px', background: '#a855f7', borderRadius: '4px' }}></span>
-                      Configuração do Novo Cenário
-                    </h3>
-                    
-                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Título da Experiência</label>
-                        <input type="text" value={newScenario.title} onChange={e => setNewScenario({...newScenario, title: e.target.value})} placeholder="Ex: Imigração no Aeroporto JFK" required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '1rem', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = '#a855f7'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+              <div ref={scenarioFormRef}>
+                <AnimatePresence>
+                  {showAddScenario && (
+                    <motion.form initial={{ height: 0, opacity: 0, scale: 0.95 }} animate={{ height: 'auto', opacity: 1, scale: 1 }} exit={{ height: 0, opacity: 0, scale: 0.95 }} transition={{ duration: 0.3 }} onSubmit={handleSaveScenario} style={{ background: 'white', padding: '2.5rem', borderRadius: '24px', boxShadow: '0 10px 40px -10px rgba(0,0,0,0.08)', border: editingScenarioId ? '2px solid #3b82f6' : '1px solid #f1f5f9', marginBottom: '2rem' }}>
+                      <h3 style={{ color: '#334155', marginTop: 0, marginBottom: '2rem', fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ display: 'inline-block', width: '8px', height: '24px', background: editingScenarioId ? '#3b82f6' : '#a855f7', borderRadius: '4px' }}></span>
+                        {editingScenarioId ? "Editar Cenário Mágico" : "Configuração do Novo Cenário"}
+                      </h3>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Título da Experiência</label>
+                          <input type="text" value={newScenario.title} onChange={e => setNewScenario({...newScenario, title: e.target.value})} placeholder="Ex: Imigração no Aeroporto JFK" required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '1rem', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = '#a855f7'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Nível de Dificuldade</label>
+                          <select value={newScenario.level} onChange={e => setNewScenario({...newScenario, level: e.target.value})} style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', background: 'white', outline: 'none', fontSize: '1rem', cursor: 'pointer' }}>
+                            <option value="Básico">🟢 Básico</option>
+                            <option value="Intermediário">🟡 Intermediário</option>
+                            <option value="Avançado">🔴 Avançado</option>
+                          </select>
+                        </div>
                       </div>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Nível de Dificuldade</label>
-                        <select value={newScenario.level} onChange={e => setNewScenario({...newScenario, level: e.target.value})} style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', background: 'white', outline: 'none', fontSize: '1rem', cursor: 'pointer' }}>
-                          <option value="Básico">🟢 Básico</option>
-                          <option value="Intermediário">🟡 Intermediário</option>
-                          <option value="Avançado">🔴 Avançado</option>
-                        </select>
+                      
+                      <div style={{ marginBottom: '1.5rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Descrição (O que o aluno vai ver)</label>
+                        <input type="text" value={newScenario.description} onChange={e => setNewScenario({...newScenario, description: e.target.value})} placeholder="Ex: Você acabou de pousar em NY. Fale com o oficial e consiga sua permissão de entrada." required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '1rem', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = '#a855f7'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
                       </div>
-                    </div>
-                    
-                    <div style={{ marginBottom: '1.5rem' }}>
-                      <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Descrição (O que o aluno vai ver)</label>
-                      <input type="text" value={newScenario.description} onChange={e => setNewScenario({...newScenario, description: e.target.value})} placeholder="Ex: Você acabou de pousar em NY. Fale com o oficial e consiga sua permissão de entrada." required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '1rem', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = '#a855f7'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
-                    </div>
-                    
-                    <div style={{ marginBottom: '1.5rem' }}>
-                      <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>1Âª Fala da Inteligência Artificial (Em Inglês)</label>
-                      <input type="text" value={newScenario.initialMessage} onChange={e => setNewScenario({...newScenario, initialMessage: e.target.value})} placeholder="Ex: Next in line! Passport and purpose of your visit, please." required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '1rem', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = '#a855f7'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
-                    </div>
-                    
-                    <div style={{ marginBottom: '2rem' }}>
-                      <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Comportamento Secreto (Prompt para o ChatGPT)</label>
-                      <textarea value={newScenario.systemPrompt} onChange={e => setNewScenario({...newScenario, systemPrompt: e.target.value})} placeholder="Instruções de como a IA deve agir. Ex: Você é um oficial de imigração sério. Faça perguntas curtas, uma de cada vez. Se o aluno não souber responder, tente ajudar com palavras simples." required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '1rem', minHeight: '120px', resize: 'vertical', fontFamily: 'monospace', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = '#a855f7'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
-                    </div>
-                    
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                      <button type="button" onClick={() => setShowAddScenario(false)} style={{ padding: '14px 24px', borderRadius: '12px', background: '#f1f5f9', color: '#64748b', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem' }}>Cancelar</button>
-                      <button type="submit" disabled={loading} style={{ padding: '14px 32px', borderRadius: '12px', background: '#a855f7', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem', boxShadow: '0 4px 12px rgba(168, 85, 247, 0.3)' }}>
-                        {loading ? "Salvando Mágica..." : "Salvar Cenário"}
-                      </button>
-                    </div>
-                  </motion.form>
-                )}
-              </AnimatePresence>
+                      
+                      <div style={{ marginBottom: '1.5rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>1ª Fala da Inteligência Artificial (Em Inglês)</label>
+                        <input type="text" value={newScenario.initialMessage} onChange={e => setNewScenario({...newScenario, initialMessage: e.target.value})} placeholder="Ex: Next in line! Passport and purpose of your visit, please." required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '1rem', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = '#a855f7'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+                      </div>
+                      
+                      <div style={{ marginBottom: '2rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#475569' }}>Comportamento Secreto (Prompt para o ChatGPT)</label>
+                        <textarea value={newScenario.systemPrompt} onChange={e => setNewScenario({...newScenario, systemPrompt: e.target.value})} placeholder="Instruções de como a IA deve agir. Ex: Você é um oficial de imigração sério. Faça perguntas curtas, uma de cada vez. Se o aluno não souber responder, tente ajudar com palavras simples." required style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '1rem', minHeight: '120px', resize: 'vertical', fontFamily: 'monospace', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = '#a855f7'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+                      </div>
+                      
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                        <button type="button" onClick={handleCancelScenarioForm} style={{ padding: '14px 24px', borderRadius: '12px', background: '#f1f5f9', color: '#64748b', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem' }}>Cancelar</button>
+                        <button type="submit" disabled={loading} style={{ padding: '14px 32px', borderRadius: '12px', background: editingScenarioId ? '#2563eb' : '#a855f7', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem', boxShadow: editingScenarioId ? '0 4px 12px rgba(37, 99, 235, 0.3)' : '0 4px 12px rgba(168, 85, 247, 0.3)' }}>
+                          {loading ? (editingScenarioId ? "Salvando..." : "Salvando Mágica...") : (editingScenarioId ? "Salvar Alterações" : "Salvar Cenário")}
+                        </button>
+                      </div>
+                    </motion.form>
+                  )}
+                </AnimatePresence>
+              </div>
 
               <div style={{ background: 'white', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: '1px solid #f1f5f9', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
                 <h3 style={{ margin: '0 0 1rem 0', color: '#1e293b', fontSize: '1.2rem' }}>Alunos com Acesso à IA e Custos</h3>
@@ -1307,7 +1355,7 @@ export default function TeacherDashboard() {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.5rem' }}>
                 {scenarios.map(s => (
-                  <div key={s.id} style={{ background: 'white', padding: '2rem', borderRadius: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', border: '1px solid #f1f5f9', position: 'relative', display: 'flex', flexDirection: 'column', transition: 'transform 0.2s', cursor: 'default' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                  <div key={s.id} style={{ background: 'white', padding: '2rem', borderRadius: '20px', boxShadow: editingScenarioId === s.id ? '0 0 0 3px #3b82f6, 0 8px 30px rgba(59, 130, 246, 0.2)' : '0 4px 20px rgba(0,0,0,0.04)', border: editingScenarioId === s.id ? '1px solid #3b82f6' : '1px solid #f1f5f9', position: 'relative', display: 'flex', flexDirection: 'column', transition: 'all 0.2s', cursor: 'default' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
                     
                     <span style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: s.level === 'Básico' ? '#dcfce7' : s.level === 'Intermediário' ? '#fef08a' : '#fecaca', color: s.level === 'Básico' ? '#166534' : s.level === 'Intermediário' ? '#854d0e' : '#991b1b', padding: '6px 14px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '900', letterSpacing: '0.5px' }}>
                       {s.level.toUpperCase()}
@@ -1325,8 +1373,8 @@ export default function TeacherDashboard() {
                       <button onClick={() => setTestingScenario(s)} style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: '#a855f7', color: 'white', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s', boxShadow: '0 4px 12px rgba(168, 85, 247, 0.3)' }}>
                         ▶ Testar Cenário
                       </button>
-                      <button style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: '#f3e8ff', color: '#9333ea', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s' }}>
-                        Editar
+                      <button onClick={() => handleStartEditScenario(s)} style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: editingScenarioId === s.id ? '#dbeafe' : '#f3e8ff', color: editingScenarioId === s.id ? '#1d4ed8' : '#9333ea', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s' }}>
+                        {editingScenarioId === s.id ? "Editando..." : "Editar"}
                       </button>
                       <button onClick={() => handleDeleteScenario(s.id)} style={{ padding: '12px 20px', borderRadius: '10px', border: 'none', background: '#fee2e2', color: '#ef4444', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s' }}>
                         Excluir
